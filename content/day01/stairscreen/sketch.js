@@ -9,24 +9,31 @@ function setup() {
 
 }
 
-let rows = 15;
-let columns = 15;
+let rows = 4;
+let columns = 8;
 let step = 100;
 let x = 0;
 let y = 0;
+let trueScale = 0.2; //SLIDER[0.2-10]
 let scaleFactor = 0;
 let scaleDirection = false; //false is down, true is up (numberwise)
+let scaleStep = 0.003;//SLIDER[0.003-0.1]
+let moveStep = 1;//SLIDER[0.1-20]
 function draw() {
     clear();
-    for (let c = 0; c < columns; c++) {
-        for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < columns/trueScale; c++) {
+        for (let r = 0; r < rows/trueScale; r++) {
             if (c % 2 == r % 2) {//what the fuck --> if (c % 2 == 0 && r % 2 == 0 || c % 2 == 1 && r % 2 == 1 || c % 2 == -1 && r % 2 == -1) {
 
-                stairLOGO(-200 + x + c * step, -200 + y + r * step, 0.5 + scaleFactor);
-
+                stairLOGO(
+                    -130 + x + c * step, //x
+                    -130 + y + r * step, //y
+                    trueScale + scaleFactor); //scale
             } else {
-
-                stairLOGO(-200 + x + c * step, -200 + y + r * step, 0.5 - scaleFactor);
+                stairLOGO(
+                    -130 + x + c * step, //x
+                    -130 + y + r * step, //y
+                    trueScale - scaleFactor); //scale
             }
         }
     }
@@ -36,13 +43,13 @@ function draw() {
 
     //Scalefactor goes up and down to make the logo pulse
     if (scaleDirection) {
-        scaleFactor += 0.003;
+        scaleFactor += scaleStep;
         if (scaleFactor > 0.1) {
             scaleDirection = false;
         }
     }
     else {
-        scaleFactor -= 0.003;
+        scaleFactor -= scaleStep;
         if (scaleFactor < -0.1) {
             scaleDirection = true;
         }
