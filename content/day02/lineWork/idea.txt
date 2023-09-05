@@ -1,0 +1,7 @@
+create n rows, and columns, 
+iterate over "squares" in grid and sometimes place a sideways bar, sometimes not
+animate it, they move the direction they point
+bars become lighter they closer they are to the bottom 
+-->visually the colours should "stay still" but the bars move, should be interesting
+
+(a line could also be represented by something like a button? or text?!!??)

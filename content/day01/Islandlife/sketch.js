@@ -4,7 +4,19 @@ let canvas;
 function setup() {
     canvas = createCanvas(windowWidth, windowHeight);
 
-    drawTree(windowWidth / 2, windowHeight / 2, 20, 60, 0.2);
+    //drawTree(windowWidth / 2, windowHeight / 2, 20, 60, 0.2);
+    drawIsland();
+    //ellipse(middleRandom() * 100 + windowWidth / 2, windowHeight / 2, 50, 30);
+}
+
+function keyPressed() {
+    if (keyCode === 82) { // spacebar
+        clear();
+        drawIsland();
+    }
+}
+
+function drawIsland() {
 
     //draws water
     fill(47, 101, 189);
@@ -20,11 +32,17 @@ function setup() {
 
     //draws forest 
     drawWoods(windowWidth / 2, -30 + windowHeight / 2, 25, 100, 10, 60);
-    
+
     //draws lake
     fill(47, 101, 189);
-    //ellipse(middleRandom() * 100 + windowWidth / 2, windowHeight / 2, 50, 30);
 }
+
+function drawWoods(x, y, num, radius, maxWidth, maxHeight) {
+    for (let index = 0; index < num; index++) {
+        drawTree(x + middleRandom() * radius, y + middleRandom() * radius, Math.random() * maxWidth, Math.random() * maxHeight, Math.random());
+    }
+}
+
 
 //Draws a tree at position x and y with a width and height
 function drawTree(x, y, w, h, trunkPercent = 0.5) {
@@ -44,14 +62,8 @@ function drawTree(x, y, w, h, trunkPercent = 0.5) {
     triangle(x - w, y, x + w, y, x, y - (h * 1 - trunkPercent));
 }
 
-function drawWoods(x, y, num, radius, maxWidth, maxHeight) {
-    for (let index = 0; index < num; index++) {
-        drawTree(x + middleRandom() * radius, y + middleRandom() * radius, Math.random() * maxWidth, Math.random() * maxHeight, Math.random());
-    }
-}
-
 //Returns a random number between -0.5 and 0.5, used to simplify formulas
-function middleRandom(){
+function middleRandom() {
     return Math.random() - 0.5;
 }
 
