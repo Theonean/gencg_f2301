@@ -17,22 +17,43 @@ function setup() {
             let squareY = r * 100 + offsetY;
             let squareSide = 70;
 
-            //CHATGPT
             let innerSquareSide = squareSide;
+
             let innerOffsetX = 0;
             let innerOffsetY = 0;
 
             //Draw inner squares
-            for (let cRec = 0; cRec < c; cRec++) {
+            for (let cRec = 1; cRec < c; cRec++) {
                 //recursive inner squares become smaller
                 innerSquareSide *= 0.8;  // adjust this factor as you like
-                innerOffsetX += (squareSide - innerSquareSide) / 2;
-                innerOffsetY += (squareSide - innerSquareSide) / 2;
-                
-                rotate(PI / 3);
-                square(squareX + (squareSide - innerSquareSide) / 2, squareY + (squareSide - innerSquareSide) / 2, innerSquareSide);
+                innerOffsetX = (squareSide - innerSquareSide) / 2;
+                innerOffsetY = (squareSide - innerSquareSide) / 2;
+
+                let squareTopLeftX = squareX + innerOffsetX;
+                let squareTopLeftY = squareY + innerOffsetY;
+                let squareTopRightX = squareTopLeftX + innerSquareSide;
+                let squareTopRightY = squareTopLeftY;
+                let squareBottomLeftX = squareTopLeftX;
+                let squareBottomLeftY = squareTopLeftY + innerSquareSide;
+                let squareBottomRightX = squareTopRightX;
+                let squareBottomRightY = squareBottomLeftY;
+                let rotation = cRec * 1.3;
+        
+                strokeWeight(2);
+                stroke(255);
+        
+                push();
+                translate(squareX + innerOffsetX + innerSquareSide / 2, squareY + innerOffsetY + innerSquareSide / 2);
+                rotate(rotation);
+                translate(-squareX - innerOffsetX - innerSquareSide / 2, -squareY - innerOffsetY - innerSquareSide / 2);
+                line(squareTopLeftX, squareTopLeftY, squareTopRightX, squareTopRightY);
+                line(squareTopLeftX, squareTopLeftY, squareBottomLeftX, squareBottomLeftY);
+                line(squareBottomRightX, squareBottomRightY, squareBottomLeftX, squareBottomLeftY);
+                line(squareBottomRightX, squareBottomRightY, squareTopRightX, squareTopRightY);
+                pop();
+                //square(squareX + innerOffsetX, squareY + innerOffsetY, innerSquareSide);
             }
-            //END CHATPGT --> helped solve technical problem with drawing squares
+
         }
     }
 }
