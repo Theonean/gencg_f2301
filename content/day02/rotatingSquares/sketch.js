@@ -66,11 +66,8 @@ function draw() {
                 innerSquareSide *= 0.8;  // adjust this factor as you like
                 innerOffsetX = (squareSide - innerSquareSide) / 2;
                 innerOffsetY = (squareSide - innerSquareSide) / 2;
-
-                //Change these variables over time
-
-
-                let squareTopLeftX = squareX + innerOffsetX; //moves line over time
+                
+                let squareTopLeftX = squareX + innerOffsetX;
                 let squareTopLeftY = squareY + innerOffsetY;
                 let squareTopRightX = squareTopLeftX + innerSquareSide;
                 let squareTopRightY = squareTopLeftY;
