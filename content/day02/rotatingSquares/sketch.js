@@ -1,11 +1,16 @@
 let canvas;
+let uiVisible = true; // Variable to toggle UI visibility CHATGPT
 
-// Default P5 setup function
-function setup() {
-    canvas = createCanvas(windowWidth, windowHeight);
 
-}
+// Expose with sliders or buttons CHATGPT
+let squareSideSlider;
+let offsetXSlider, offsetYSlider, squareInbetweenDistanceSlider;
+let innerRotationMultiplierSlider, rowsSlider, columnsSlider;
+let timeSpeedSlider, framerateSlider, randomFlickeringCheckbox;
+let redMultiplierSlider, greenMultiplierSlider, blueMultiplierSlider;
 
+//Expose with sliders or buttons
+//FROM HERE
 let movingX = 0;
 let movingY = 0;
 let squareSide = 100;
@@ -16,13 +21,26 @@ let innerRotationMultiplier = 2;
 let columns = 20;
 let rows = 12;
 let timeSpeed = 0.01;
+let framerate = 15;
+let randomFlickeringEnabled = false;
+let redMultiplier = 30;
+let greenMultiplier = 40;
+let blueMultiplier = 50;
 
 // Time variable
 let t = 0;
+//UNTIL HERE
+
+function setup() {
+    canvas = createCanvas(windowWidth, windowHeight);
+
+    createUI();
+    updateFromUI();
+}
 
 function draw() {
+    updateFromUI();
     clear();
-    background(color(0));
 
     // Change innerRotationMultiplier over time
     innerRotationMultiplier = sin(t) * 3.0;
@@ -41,8 +59,9 @@ function draw() {
             let innerOffsetX = 0;
             let innerOffsetY = 0;
 
+            let recursiveSquareNumbah = randomFlickeringEnabled ? Math.random() * 5 : c;
             //Draw inner squares
-            for (let cRec = 1; cRec < Math.random() * 5; cRec++) {
+            for (let cRec = 1; cRec < recursiveSquareNumbah; cRec++) {
                 //recursive inner squares become smaller
                 innerSquareSide *= 0.8;  // adjust this factor as you like
                 innerOffsetX = (squareSide - innerSquareSide) / 2;
@@ -74,7 +93,7 @@ function draw() {
                 }
                 translate(-squareX - innerOffsetX - innerSquareSide / 2, -squareY - innerOffsetY - innerSquareSide / 2);
 
-                fill(cRec * 10, cRec * 3, cRec * 50);
+                fill(cRec * redMultiplier, cRec * blueMultiplier, cRec * greenMultiplier);
 
                 // Draw a filled square
                 beginShape();
@@ -110,4 +129,97 @@ function draw() {
 
     movingX = nextX;
     movingY = nextY;
+}
+/*
+// you can put it in the mousePressed function,
+// or keyPressed for example
+function keyPressed() {
+    // this will download the first 5 seconds of the animation!
+    if (key === 's') {
+        saveGif('mySketch', 5);
+    }
+}*/
+
+//CHATGPT CODE TO CREATE UI
+// Create UI elements
+function createUI() {
+
+    squareSideSlider = createSlider(50, 200, 100);
+    offsetXSlider = createSlider(-500, 500, -400);
+    offsetYSlider = createSlider(-500, 500, -300);
+    squareInbetweenDistanceSlider = createSlider(50, 200, 110);
+    innerRotationMultiplierSlider = createSlider(0, 5, 2, 0.1);
+    rowsSlider = createSlider(1, 50, 12);
+    columnsSlider = createSlider(1, 50, 20);
+    timeSpeedSlider = createSlider(0, 0.1, 0.01, 0.001);
+    framerateSlider = createSlider(1, 60, 15);
+    redMultiplierSlider = createSlider(0, 255, 30);
+    greenMultiplierSlider = createSlider(0, 255, 40);
+    blueMultiplierSlider = createSlider(0, 255, 50);
+    randomFlickeringCheckbox = createCheckbox('Random Flickering', false);
+
+    // Position UI elements
+    let y = 10;
+    let step = 30;
+    squareSideSlider.position(10, y); y += step;
+    offsetXSlider.position(10, y); y += step;
+    offsetYSlider.position(10, y); y += step;
+    squareInbetweenDistanceSlider.position(10, y); y += step;
+    innerRotationMultiplierSlider.position(10, y); y += step;
+    rowsSlider.position(10, y); y += step;
+    columnsSlider.position(10, y); y += step;
+    timeSpeedSlider.position(10, y); y += step;
+    framerateSlider.position(10, y); y += step;
+    redMultiplierSlider.position(10, y); y += step;
+    greenMultiplierSlider.position(10, y); y += step;
+    blueMultiplierSlider.position(10, y); y += step;
+    randomFlickeringCheckbox.position(10, y); y += step;
+}
+
+// Update variables based on UI
+function updateFromUI() {
+    squareSide = squareSideSlider.value();
+    offsetX = offsetXSlider.value();
+    offsetY = offsetYSlider.value();
+    squareInbetweenDistance = squareInbetweenDistanceSlider.value();
+    innerRotationMultiplier = innerRotationMultiplierSlider.value();
+    rows = rowsSlider.value();
+    columns = columnsSlider.value();
+    timeSpeed = timeSpeedSlider.value();
+    framerate = framerateSlider.value();
+    redMultiplier = redMultiplierSlider.value();
+    greenMultiplier = greenMultiplierSlider.value();
+    blueMultiplier = blueMultiplierSlider.value();
+    randomFlickeringEnabled = randomFlickeringCheckbox.checked();
+
+
+    frameRate(framerate);
+}
+
+// Toggle UI visibility with spacebar
+function keyPressed() {
+    if (keyCode === 32) {
+        uiVisible = !uiVisible;
+        toggleUIVisibility();
+    }
+}
+
+// Hide or show the UI
+function toggleUIVisibility() {
+    let state = uiVisible ? 'block' : 'none';
+    movingXSlider.elt.style.display = state;
+    movingYSlider.elt.style.display = state;
+    squareSideSlider.elt.style.display = state;
+    offsetXSlider.elt.style.display = state;
+    offsetYSlider.elt.style.display = state;
+    squareInbetweenDistanceSlider.elt.style.display = state;
+    innerRotationMultiplierSlider.elt.style.display = state;
+    rowsSlider.elt.style.display = state;
+    columnsSlider.elt.style.display = state;
+    timeSpeedSlider.elt.style.display = state;
+    framerateSlider.elt.style.display = state;
+    redMultiplierSlider.elt.style.display = state;
+    greenMultiplierSlider.elt.style.display = state;
+    blueMultiplierSlider.elt.style.display = state;
+    randomFlickeringCheckbox.elt.style.display = state;
 }
