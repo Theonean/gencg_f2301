@@ -28,7 +28,7 @@ function setup() {
                 innerSquareSide *= 0.8;  // adjust this factor as you like
                 innerOffsetX = (squareSide - innerSquareSide) / 2;
                 innerOffsetY = (squareSide - innerSquareSide) / 2;
-
+                
                 let squareTopLeftX = squareX + innerOffsetX;
                 let squareTopLeftY = squareY + innerOffsetY;
                 let squareTopRightX = squareTopLeftX + innerSquareSide;
