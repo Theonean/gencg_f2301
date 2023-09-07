@@ -11,7 +11,7 @@ let columns = 12;
 let rows = 12;
 let orbDistance = 0;
 let orbSize = 0;
-let offset = 30;
+let offset = 50;
 let speedup = 10;
 
 // Default P5 setup function
@@ -22,7 +22,8 @@ function setup() {
     offX = windowWidth / 4;
     createMap();
     addPacmans();
-    drawPacman();
+
+    angleMode(DEGREES);
 }
 
 function draw() {
@@ -63,7 +64,10 @@ function addHourPacMan() {
         posY: 0 * orbDistance + offset,
         startX: 0,
         startY: 0,
-        direction: "down"
+        direction: "down",
+        mouthStart: 120,
+        mouthEnd: 60,
+        mouthDirection: "closing"
     });
 
 }
@@ -75,11 +79,14 @@ function addMinutePacMan() {
         OuR: 60,
         currX: 2,
         currY: 0,
-        posX: 2 * orbDistance + offset,
+        posX: 2.05 * orbDistance + offset,
         posY: 0 * orbDistance + offset,
         startX: 2,
         startY: 0,
-        direction: "down"
+        direction: "down",
+        mouthStart: 120,
+        mouthEnd: 60,
+        mouthDirection: "closing"
     });
 
 }
@@ -91,11 +98,14 @@ function addSecondPacMan() {
         OuR: 60,
         currX: 7,
         currY: 0,
-        posX: 7 * orbDistance + offset,
+        posX: 7.05 * orbDistance + offset, //I am baffled, when i add the 005 its moved enough so Math.floor somehow doesnt magically just floor 7 to a 6
         posY: 0 * orbDistance + offset,
         startX: 7,
         startY: 0,
-        direction: "down"
+        direction: "down",
+        mouthStart: 120,
+        mouthEnd: 60,
+        mouthDirection: "closing"
     });
 }
 //Draws the map during animation (orbs)
@@ -104,34 +114,32 @@ function drawMap() {
         for (let r = 0; r < 12; r++) {
             //true means a circle can be placed, otherwise it has been eaten --> crumbs(?)
             if (PacMap[c][r]) {
+                fill(123, 123, 123);
                 circle(c * orbDistance + offset, r * orbDistance + offset, orbSize);
             }
         }
     }
 }
 
-
 function movePacmans() {
     let deltaTime = millis() + speedup - lastMoveTime;
-    let deltaSecond = deltaTime / 1000;
-    let deltaMinute = deltaSecond / 60;
-    let deltaHour = deltaMinute / 60;
+    deltaSecond = deltaTime / 1000;
+    deltaMinute = deltaSecond / 60;
+    deltaHour = deltaMinute / 60;
     let deltaCalc = 0;
 
     for (let i = 0; i < agents.length; i++) {
         let pacMan = agents[i];
-        calculateLogicalPosition(pacMan);
 
         switch (pacMan.name) {
             case "hour":
-                deltaCalc = deltaHour
+                deltaCalc = deltaHour;
                 break;
             case "minute":
                 deltaCalc = deltaMinute;
                 break;
             case "second":
                 deltaCalc = deltaSecond;
-                console.log(pacMan);
                 break;
         }
 
@@ -140,12 +148,24 @@ function movePacmans() {
             pacMan.posY += orbDistance * deltaCalc;
             if (pacMan.posY > 11 * orbDistance + offset) {
                 pacMan.direction = "right";
+                pacMan.mouthStart = 30;
+                pacMan.mouthEnd = 330;
             }
-
         }
         else if (pacMan.direction == "right") {
             pacMan.posX += orbDistance * deltaCalc;
 
+            //If moved to the right by one field go up or down again
+            if (pacMan.posX > (pacMan.currX + 1) * orbDistance + offset) {
+                if (pacMan.currY > 10) {
+                    pacMan.direction = "up";
+                    pacMan.mouthStart = 300;
+                    pacMan.mouthEnd = 240;
+                }
+                else {
+                    pacMan.direction = "down"
+                }
+            }
         }
         //move up or set new direction to right when at top
         else if (pacMan.direction == "up") {
@@ -153,48 +173,44 @@ function movePacmans() {
 
             if (pacMan.posY < 0 * orbDistance + offset) {
                 pacMan.direction = "right";
+                pacMan.mouthStart = 30;
+                pacMan.mouthEnd = 330;
             }
         }
+
 
         //console.log(pacMan.currX + " : " + pacMan.currY);
         //move pacmans current variables to next point
         //for now move everything over 1 second to next orb
-        drawPacman(pacMan.posX, pacMan.posY);
+        drawPacman(pacMan.posX, pacMan.posY, pacMan, deltaCalc);
+
+        calculateLogicalPosition(pacMan);
     }
 }
 
 function calculateLogicalPosition(pacman) {
-    let newX = Math.ceil((pacman.posX - offset) / orbDistance);
-    let newY = Math.floor((pacman.posY - offset) / orbDistance);
+    let newX = Math.floor((pacman.posX - offset) / orbDistance);
+    let newY = 0;
+
+    if (pacman.direction == "up") {
+        newY = Math.floor((pacman.posY - offset) / orbDistance);
+    } else {
+        newY = Math.ceil((pacman.posY - offset) / orbDistance);
+    }
 
     if (newX != pacman.currX || newY != pacman.currY) {
-        // If pacman has moved to a new cell, set it to false.
-        PacMap[newX][newY] = false;
-
-        //we only go one tile to the right, then up. this guarantees that
-        if (newX != pacman.currX ) {
-            if (pacman.currY > 6) {
-                pacman.direction = "up";
-            } else {
-                pacman.direction = "down";
-            }
-        }
+        // If pacman has moved to a new cell, set its last cell to false.
+        PacMap[pacman.currX][pacman.currY] = false;
 
         pacman.currX = newX;
         pacman.currY = newY;
         pacman.OuR -= 1;
 
-
-        if (pacman.direction == "down" && newY == 11) {
-            // Special case for when pacman is about to switch direction from down to right.
-            PacMap[newX][newY] = false;
-        } else if (pacman.direction == "right" && newX == pacman.startX && newY > 0) {
+        if (pacman.direction == "right") {
             // Special case for when pacman is about to switch direction from right to up.
             PacMap[newX][newY] = false;
-        } else if (pacman.direction == "up" && newY == 0) {
-            // Special case for when pacman is about to switch direction from up to right.
-            PacMap[newX][newY] = false;
         }
+
     }
 
     //If no more orbs left (cycle done) reset to start position
@@ -206,7 +222,7 @@ function calculateLogicalPosition(pacman) {
     else if (pacman.posY > 11 * orbDistance + offset) {
         pacman.currX = pacman.startX;
         pacman.currY = pacman.startY;
-        pacman.posX = pacman.currX * orbDistance + offset;
+        pacman.posX = (pacman.currX + 0.005) * orbDistance + offset;
         pacman.posY = pacman.currY * orbDistance + offset;
 
         pacman.direction = "down"
@@ -228,8 +244,71 @@ function calculateLogicalPosition(pacman) {
     }
 }
 
-function drawPacman(centerX, centerY) {
-    circle(centerX, centerY, orbSize * 2);
+
+function drawPacman(centerX, centerY, pacman, delta) {
+    fill(255, 255, 102);
+
+    if (pacman.mouthDirection == "closing") {
+        if (pacman.direction == "up") {
+            pacman.mouthStart -= 10 * delta;
+            pacman.mouthEnd += 10 * delta;
+
+            if (pacman.mouthStart < 275) {
+                pacman.mouthDirection = "opening";
+            }
+
+        }
+        else if (pacman.direction == "down") {
+            pacman.mouthStart -= 10 * delta;
+            pacman.mouthEnd += 10 * delta;
+
+            if (pacman.mouthStart < 95) {
+                pacman.mouthDirection = "opening";
+                console.log("opening");
+            }
+
+        }
+    }
+    else if (pacman.mouthDirection == "opening") {
+
+        if (pacman.direction == "up") {
+            pacman.mouthStart += 10 * delta;
+            pacman.mouthEnd -= 10 * delta;
+
+            if (pacman.mouthStart > 300) {
+                pacman.mouthDirection = "closing";
+            }
+
+        }
+        else if (pacman.direction == "down") {
+            pacman.mouthStart += 10 * delta;
+            pacman.mouthEnd -= 10 * delta;
+
+            if (pacman.mouthStart > 120) {
+                pacman.mouthDirection = "closing";
+                console.log("closing");
+            }
+
+        }
+    }
+
+
+    arc(centerX, centerY, orbSize * 2, orbSize * 2, pacman.mouthStart, pacman.mouthEnd);
+}
+
+function getPacManMouthMiddle(pacmanDirection) {
+    switch (pacmanDirection) {
+        case "down":
+            return 90;
+            break;
+        case "right":
+            return 0
+            break;
+        case "up":
+            return -90;
+            break;
+
+    }
 }
 
 //Fills a square of the pactable with either true or false
