@@ -1,0 +1,4 @@
+"a silent piece"
+repräsentierend wie die lautstärke und das brechen der kontzentration das bild beinflussen
+
+bild dreht sich wenn es überhalb einer bestimmten Lautstärke ist -- oder drreht sich stetig (nicht wenn ganz leise, schneller je läuter)
