@@ -34,12 +34,12 @@ let t = 0;
 function setup() {
     canvas = createCanvas(windowWidth, windowHeight);
 
-    createUI();
-    updateFromUI();
+    //createUI();
+    //updateFromUI();
 }
 
 function draw() {
-    updateFromUI();
+    //updateFromUI();
     clear();
 
     // Change innerRotationMultiplier over time
