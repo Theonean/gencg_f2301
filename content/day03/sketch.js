@@ -12,7 +12,7 @@ let rows = 12;
 let orbDistance = 0;
 let orbSize = 0;
 let offset = 50;
-let speedup = 10;
+let speedup = 0;
 
 // Default P5 setup function
 function setup() {

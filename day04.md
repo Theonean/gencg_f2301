@@ -1,6 +1,6 @@
-# Day 04 Machines
+# Day 04 
 
-## Computing without computer
+## Machines
 
 ### Sprouts with extended rules
 

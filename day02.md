@@ -2,20 +2,19 @@
 
 ## Grids & Iterative Patterns
 
-### Sprouts with extended rules
+### Moving Mandala
 
-Played Sprouts with additional rule of connecting to nodes of previous games, this made it look like a face.
+Part of this days task was to create some tiling or iterative pattern.
+Motivated by my previous task (STAIR Logo) and inspired by Vera Molnars squares I planned to create rotating squares nested inside each other.
 
-## Computing with computer
+While creating the squares movement I had a lot of trouble not having the rotation mess things up and make things go out of viewbounds.
 
-To warmup I wanted to create something fairly simple so I started with some trees and random forest creation. This inspired me to create a small island with a beach and a forest.
+To try and fix this bug I tried various methods like changing the way I draw the square from rect, square, 4 lines together and finally drawing it as a shape with vertices which ended up being most reliable.
+I also added in that every 2nd column and row counter rotates, adding to the moving mandala feeling.
 
-{% raw %}
-<iframe src="https://editor.p5js.org/Theonean/full/A81EGXGdY" width="100%" height="450" frameborder="no"></iframe>
-{% endraw %}
-
-Looking at my classmates work I wanted to try creating some interesting visual with a logo. luckily the STAIR logo is fairly easy to reproduce and with some simple movement in mind I created the logo stroller.
+Although I am happy with the visuals it creates I could still do a lot more with the colour ie. making it dynamic or react to the user.
 
 {% raw %}
-<iframe src="https://editor.p5js.org/Theonean/full/r4Hndy4E4" width="100%" height="450" frameborder="no"></iframe>
+<iframe src="https://editor.p5js.org/Theonean/full/YK-H4r80J" width="100%" height="450" frameborder="no"></iframe>
 {% endraw %}
+
