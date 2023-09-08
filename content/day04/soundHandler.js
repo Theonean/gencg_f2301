@@ -37,9 +37,10 @@ function prepareAudioInput() {
   fft = new p5.FFT();
   fft.setInput(mic);
 
-  setInterval(saveRollingSpectrumAnalysis, 1000); // call saveRollingSpectrumAnalysis() every 2 seconds
+  setInterval(saveRollingSpectrumAnalysis, 100); // call saveRollingSpectrumAnalysis() every 2 seconds
 }
 
+//Resets array of data
 function saveRollingSpectrumAnalysis() {
 
   //console.log(rollingSpectrumAnalysis);
@@ -51,6 +52,7 @@ function saveRollingSpectrumAnalysis() {
   rollingSpectrumAnalysis = new Array(7).fill(0);
   rollingSpectrumAnalysisCount = 0;
   i++;
+
 }
 
 var subBass = 0;

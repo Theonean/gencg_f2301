@@ -2,3 +2,6 @@
 repräsentierend wie die lautstärke und das brechen der kontzentration das bild beinflussen
 
 bild dreht sich wenn es überhalb einer bestimmten Lautstärke ist -- oder drreht sich stetig (nicht wenn ganz leise, schneller je läuter)
+
+--> neue indee
+es werden punkte gemalt in einem raster (halbe sekunde abstand) wessen Farbe die umgebung repräsentiert (rot tiefe töne, grün mittlere,blau höhere )
