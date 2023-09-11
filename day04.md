@@ -11,7 +11,7 @@ The idea behind this was to let the canvas rotate whenever the loudness reaches 
 Out of that idea this first image got created, titled "my voice" it was made by drawing straight lines and talking / singing / shouting during the process.
 
 {% raw %}
-<iframe src="imgs/day4Img1_myVoice.png" width="100%" height="220" frameborder="no"></iframe>
+<iframe src="imgs/day4Img1_myVoice.png" width="100%" height="300" frameborder="no"></iframe>
 {% endraw %}
 
 However this idea still felt quite forced to me so I continued working on it upon which I stumbled on the idea of creating a sound-wall which would (with its colours) roughly represent the relation (of loudness) of low-mid-high frequencies to each other.
@@ -25,33 +25,34 @@ Blue: High Frequency band < 20000hz (above is unhearable so ignored)
 The first is made with the song "high way to hell - AC/DC"
 
 {% raw %}
-<iframe src="imgs/day4_img01_highwaytohell.png" width="100%" height="220" frameborder="no"></iframe>
+<iframe src="imgs/day4_img01_highwaytohell.png" width="100%" height="300" frameborder="no"></iframe>
 {% endraw %}
 
 The next piece is made with "fallen kingdoms - captain sparklez" (a minecraft parody of coldplays viva la vida)
 
 {% raw %}
-<iframe src="imgs/day4_img02_fallenkingdom.png" width="100%" height="220" frameborder="no"></iframe>
+<iframe src="imgs/day4_img02_fallenkingdom.png" width="100%" height="300" frameborder="no"></iframe>
 {% endraw %}
 
 and finally a swiss classic "W nuss vo Bümpliz - Patent Ochsner"
 
 {% raw %}
-<iframe src="imgs/day4_img03_wNussVoBuempliz.png" width="100%" height="220" frameborder="no"></iframe>
+<iframe src="imgs/day4_img03_wNussVoBuempliz.png" width="100%" height="300" frameborder="no"></iframe>
 {% endraw %}
 
 Reflecting on this first collection made I think the bubbles are too far away from each other and it currently reads a lot more like "colour noise" instead of "musical colour" which is a shame.
 
-Which also brings me to the part of this project I think I could improve most on: the coloring and intensity of the colours depending on the noise.
+Which also brings me to the part of this project I think I could improve most on: <br> 
+the coloring and intensity of the colours depending on the noise.
 The spacing between circles is something I changed drastically for my last piece. The large distances made the previous pieces feel to "airy" and make it lose impact per bubble and readability.
 
-For my last piece I used the song "W nuss vo Bümpliz" again, this time specific parts of the song can be recognized by the naked eye:
--the black circles where theres breaks in the song
--the slow buildup of all instruments (circles become darker and darker, sound becomes smudged)
+For my last piece I used the song "W nuss vo Bümpliz" again, this time specific parts of the song can be recognized by the naked eye: <br>
+-the black circles where theres breaks in the song<br>
+-the slow buildup of all instruments (circles become darker and darker, sound becomes smudged)<br>
 -bluer and greener parts represent vocals / more instrumental parts, voices tend to be in the green-midrange
 
 {% raw %}
-<iframe src="imgs/day4_img03_wNussVoBuempliz_noAir.png" width="100%" height="300" frameborder="no"></iframe>
+<iframe src="imgs/day4_img03_wNussVoBuempliz_noAir.png" width="100%" height="330" frameborder="no"></iframe>
 {% endraw %}
 
 And finally heres the sketch which does the same thing as above but takes in Microphone sounds instead of songs. Because Microphone permission doesn't work within this github page you'll need to open the sketch in the p5js web editor.
