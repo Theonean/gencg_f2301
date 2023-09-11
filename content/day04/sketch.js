@@ -1,15 +1,5 @@
 let canvas;
 
-// Default P5 setup function
-function setup() {
-    canvas = createCanvas(windowWidth, windowHeight);
-    angleMode(DEGREES);
-    prepareAudioInput();
-
-
-    lastTime = millis();
-}
-
 let painting = false;
 let rotation = 0;
 let rotationFactor = 2;
@@ -18,9 +8,23 @@ let loudnessUntilRandom = 20;
 let r = 0;
 let g = 0;
 let b = 0;
-let bubbleInbetweenMillis = 100;
+let bubbleInbetweenMillis = 250;
 let bubbleWaitCounter = 0;
 let lastTime = 0;
+
+// Default P5 setup function
+let offset = 0;
+function setup() {
+    canvas = createCanvas(windowWidth, windowHeight);
+    angleMode(DEGREES);
+    colorMode(RGB);
+    prepareAudioInput();
+
+
+    lastTime = millis();
+    offset = stepSize;
+}
+
 function draw() {
     //milliseconds since last 
     let deltaTime = millis() - lastTime;
@@ -28,7 +32,7 @@ function draw() {
 
     if (bubbleWaitCounter >= bubbleInbetweenMillis) {
         drawBackgroundBubble();
-        bubbleWaitCounter = 0;
+        bubbleWaitCounter = bubbleWaitCounter - bubbleInbetweenMillis;//makes sure milliseconds dont get lost
     }
 
     getSoundInput();
@@ -50,10 +54,11 @@ function draw() {
 }
 
 function setRGBToLoudnes() {
-    r = rollingSpectrumAnalysis[0] + rollingSpectrumAnalysis[1] + rollingSpectrumAnalysis[2];
-    g = rollingSpectrumAnalysis[2] + rollingSpectrumAnalysis[3] * 0.5;
-    b = rollingSpectrumAnalysis[3] * 0.5 + rollingSpectrumAnalysis[4] + rollingSpectrumAnalysis[5] + rollingSpectrumAnalysis[6];
-
+    r = rollingSpectrumAnalysis[0] + rollingSpectrumAnalysis[1];
+    g = rollingSpectrumAnalysis[2] + rollingSpectrumAnalysis[3];
+    b = rollingSpectrumAnalysis[4] + rollingSpectrumAnalysis[5] + rollingSpectrumAnalysis[6];
+    console.log("r: " + r + " g: " + g + " b: " + b);
+    console.log(totalPseudoLoudness);
     //scale to total loudness and 255 (max colour)
     r = r / totalPseudoLoudness;
     r *= 255;
@@ -63,8 +68,8 @@ function setRGBToLoudnes() {
     b *= 255;
 }
 
-let stepSize = 40;
-let shapeWidth = 20;
+let stepSize = 20;
+let shapeWidth = 27;
 let columns = 25;
 let rows = 12;
 let currBubbleNum = 0;
@@ -77,8 +82,9 @@ function drawBackgroundBubble() {
             if (counter == currBubbleNum) {
                 fill(r, g, b);
                 console.log(c + " " + r);
-                circle(c * stepSize, r * stepSize, shapeWidth);
-                currBubbleNum++;
+                circle(c * stepSize + stepSize, r * stepSize + stepSize, shapeWidth);
+                currBubbleNum++; //increases  num
+                //caps value to maximum amount of bubbles 
                 currBubbleNum = currBubbleNum % (columns * rows);
                 bubblePlaced = true;
                 break;

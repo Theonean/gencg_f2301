@@ -23,21 +23,26 @@ function toggleSong() {
 
 function preload() {
   //uncomment and comment fft.setinput to have song data
-  //song = loadSound('fallenkingdom.mp3');
+  //song = loadSound("songs/fallenkingdom.mp3");
 }
 
 function prepareAudioInput() {
   button = createButton('toggle');
   button.mousePressed(toggleSong);
 
+  //Uncomment when playing song
   //song.play();
 
   mic = new p5.AudioIn();
   mic.start();
   fft = new p5.FFT();
+
+  //comment this line when song input
   fft.setInput(mic);
 
-  setInterval(saveRollingSpectrumAnalysis, 100); // call saveRollingSpectrumAnalysis() every 2 seconds
+  //For this usage saveRollingSpectrumAnalysis not needed because it resets data to 0
+  //to prevent weird bubble colours imma just straight funnel the data coming in to the data array
+  //setInterval(saveRollingSpectrumAnalysis, 100); // call saveRollingSpectrumAnalysis() every 2 seconds
 }
 
 //Resets array of data
@@ -82,11 +87,11 @@ function getSoundInput() {
     analysisValues.push((getRangeAverage(spectrum, mappedStart, mappedEnd)));
   }
 
-  //merges new values into 2 second rolling average
+  //Save incoming audio directly into audio data
   for (let index = 0; index < analysisValues.length; index++) {
-    rollingSpectrumAnalysis[index] += analysisValues[index];
+    rollingSpectrumAnalysis[index] = analysisValues[index];
   }
-
+  console.log(rollingSpectrumAnalysis);
   rollingSpectrumAnalysisCount++;
 }
 
