@@ -54,8 +54,6 @@ For my last piece I used the song "W nuss vo Bümpliz" again, this time specific
 <iframe src="imgs/day4_img03_wNussVoBuempliz_noAir.png" width="100%" height="450" frameborder="no"></iframe>
 {% endraw %}
 
-And finally heres the sketch which does the same thing as above but takes in Microphone sounds instead of songs.
+And finally heres the sketch which does the same thing as above but takes in Microphone sounds instead of songs. Because Microphone permission doesn't work within this github page you'll need to open the sketch in the p5js web editor.
 
-{% raw %}
-<iframe src="https://editor.p5js.org/Theonean/full/JL9K5YtlI" width="100%" height="450" frameborder="no"></iframe>
-{% endraw %}
+https://editor.p5js.org/Theonean/full/JL9K5YtlI
