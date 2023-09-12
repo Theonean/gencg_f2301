@@ -20,7 +20,7 @@ function setup() {
     drawNose();
     drawMouth();
     drawHair();
-    
+
     //Draw visualization of my data variables
     /*
     line(faceBorders.middleX, eyePosY, faceBorders.middleX, faceBorders.top);
@@ -214,4 +214,8 @@ bezier(mouthXLeft, mouthPosY,
     mouthXRight + mouthPullXRight - Math.random() * 10 - 10, mouthPosY + mouthPullYRight + Math.random() * 10 + 10,
     mouthXRight, mouthPosY)
     */
+}
+
+function drawHair() {
+
 }
