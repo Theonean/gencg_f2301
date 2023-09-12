@@ -54,8 +54,8 @@ function draw() {
 }
 
 function setRGBToLoudnes() {
-    r = rollingSpectrumAnalysis[0] + rollingSpectrumAnalysis[1];
-    g = rollingSpectrumAnalysis[2] + rollingSpectrumAnalysis[3];
+    r = rollingSpectrumAnalysis[1] + rollingSpectrumAnalysis[2];
+    g = rollingSpectrumAnalysis[3];
     b = rollingSpectrumAnalysis[4] + rollingSpectrumAnalysis[5] + rollingSpectrumAnalysis[6];
     console.log("r: " + r + " g: " + g + " b: " + b);
     console.log(totalPseudoLoudness);

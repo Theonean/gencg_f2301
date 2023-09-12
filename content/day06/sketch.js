@@ -21,12 +21,16 @@ function setup() {
     drawMouth();
     drawHair();
 
+
+
     //Draw visualization of my data variables
+    fill(255, 0, 0);
     /*
     line(faceBorders.middleX, eyePosY, faceBorders.middleX, faceBorders.top);
     line(faceBorders.middleX, eyePosY, faceBorders.middleX - faceBorders.left, eyePosY);
     line(faceBorders.middleX, eyePosY, faceBorders.middleX + faceBorders.right, eyePosY);
-    */
+    line(faceBorders.middleX, eyePosY, faceBorders.middleX, faceBorders.bottom);*/
+    noFill();
 }
 
 function drawFaceOutline() {
@@ -41,7 +45,7 @@ function drawFaceOutline() {
     y3 += middleRandom() * windowHeight / 4; // add some randomness to face top
 
     //Max pullforce for bezier curve
-    let maxPullForce = 120;
+    let maxPullForce = Math.random() * 500; //Randomizing this part makes round AND small faces likely
 
     //adds flat "roundness" to face, reduces with windowHeight
     let preventSmallFaceFactor = (windowHeight / 1080) * 30;
@@ -189,13 +193,25 @@ function drawMouth() {
     //Cheaty switchcase, using fallthrough on case 2 for both lines
     switch (mouthVariant) {
         case 2:
-            //draws top line of mouth
-            bezier(mouthXLeft, mouthPosY,
-                //Extra pull to top left
-                mouthXLeft + mouthPullXLeft - Math.random() * 10 - 10, mouthPosY + mouthPullYLeft - Math.random() * 10 - 10,
-                //Extra pull to top right
-                mouthXRight + mouthPullXRight + Math.random() * 10 + 10, mouthPosY + mouthPullYRight - Math.random() * 10 - 10,
-                mouthXRight, mouthPosY)
+            //Extraline sometimes up sometimes down
+            if (Math.random() >= 0.5) {
+                //draws top line of mouth
+                bezier(mouthXLeft, mouthPosY,
+                    //Extra pull to top left
+                    mouthXLeft + mouthPullXLeft - Math.random() * 10 - 10, mouthPosY + mouthPullYLeft - Math.random() * 10 - 10,
+                    //Extra pull to top right
+                    mouthXRight + mouthPullXRight + Math.random() * 10 + 10, mouthPosY + mouthPullYRight - Math.random() * 10 - 10,
+                    mouthXRight, mouthPosY)
+            } else {
+
+                //draws bottom line of mouth
+                bezier(mouthXLeft, mouthPosY,
+                    //Extra pull to bottom right
+                    mouthXLeft + mouthPullXLeft + Math.random() * 10 + 10, mouthPosY + mouthPullYLeft + Math.random() * 10 + 10,
+                    //Extra pull to bottom left
+                    mouthXRight + mouthPullXRight - Math.random() * 10 - 10, mouthPosY + mouthPullYRight + Math.random() * 10 + 10,
+                    mouthXRight, mouthPosY)
+            }
         case 1:
             bezier(mouthXLeft, mouthPosY,
                 mouthXLeft + mouthPullXLeft, mouthPosY + mouthPullYLeft,
@@ -204,16 +220,6 @@ function drawMouth() {
             break;
     }
 
-    //Triple line version of mouth looks "fine" but it looks EXTREMELY colonial with the "big lips" stereotype, so Imma not do that
-    /*
-//draws bottom line of mouth
-bezier(mouthXLeft, mouthPosY,
-    //Extra pull to bottom right
-    mouthXLeft + mouthPullXLeft + Math.random() * 10 + 10, mouthPosY + mouthPullYLeft + Math.random() * 10 + 10,
-    //Extra pull to bottom left
-    mouthXRight + mouthPullXRight - Math.random() * 10 - 10, mouthPosY + mouthPullYRight + Math.random() * 10 + 10,
-    mouthXRight, mouthPosY)
-    */
 }
 
 function drawHair() {

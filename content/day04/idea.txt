@@ -5,3 +5,5 @@ bild dreht sich wenn es überhalb einer bestimmten Lautstärke ist -- oder drreh
 
 --> neue indee
 es werden punkte gemalt in einem raster (halbe sekunde abstand) wessen Farbe die umgebung repräsentiert (rot tiefe töne, grün mittlere,blau höhere )
+
+look at this link: https://twistedpan.github.io/Generative_Computer_Graphics/
