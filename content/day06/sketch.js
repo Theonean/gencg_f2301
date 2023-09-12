@@ -106,7 +106,7 @@ function drawEyes() {
 
     //Variables right eye
     let rightEyeSize = Math.random() * 3 + 15;
-    let rightEyeX = faceBorders.middleX + Math.random() * faceBorders.right + 10; //random position right of middle
+    rightEyeX = faceBorders.middleX + Math.random() * faceBorders.right + 10; //random position right of middle
 
     //Right eye
     circle(rightEyeX, eyePosY, rightEyeSize);
@@ -122,21 +122,35 @@ function drawEyes() {
 
 let nosePosY = 0;
 function drawNose() {
+    let noseVariantNo = Math.floor(Math.random() * 2) + 1;
+
     let faceHeight = faceBorders.bottom - faceBorders.top;
     nosePosY = faceBorders.bottom - faceHeight * 0.4;
 
-    //Nose with 2 Lines: VARIANT 1
-    let noseTopY = nosePosY + middleRandom() * 10;
-    let noseTopX = faceBorders.middleX
+    switch (noseVariantNo) {
+        case 1:
+            //Nose with 2 Lines: VARIANT 1
+            let noseTopY = nosePosY + middleRandom() * 10;
+            let noseTopX = (leftEyeX + rightEyeX) / 2; //nose always inbetween eyes
+            console.log("noseTopX: " + noseTopX + " leftEyeX: " + leftEyeX + " rightEyeX: " + rightEyeX)
 
-    let noseMiddleY = noseTopY + middleRandom() * 5;
-    let noseMiddleX = noseTopX - middleRandom() * 10;
+            let noseMiddleY = noseTopY + middleRandom() * 5;
+            let noseMiddleX = noseTopX - middleRandom() * 10;
 
-    let noseBottomY = noseMiddleY + Math.random() * 8 + 2;
-    let noseBottomX = noseTopX + middleRandom() * 2;
+            let noseBottomY = noseMiddleY + Math.random() * 8 + 2;
+            let noseBottomX = noseTopX + middleRandom() * 2;
 
-    line(noseTopX, noseTopY, noseMiddleX, noseMiddleY);
-    line(noseMiddleX, noseMiddleY, noseBottomX, noseBottomY);
+            line(noseTopX, noseTopY, noseMiddleX, noseMiddleY);
+            line(noseMiddleX, noseMiddleY, noseBottomX, noseBottomY);
+            break;
+        case 2:
+            //Nose with 1 Line: VARIANT 2
+            let noseTopY2 = nosePosY + middleRandom() * 10;
+            let noseTopX2 = faceBorders.middleX
+            let noseBottomY2 = noseTopY2 + Math.random() * 8 + 2;
+            let noseBottomX2 = noseTopX2 + middleRandom() * 2;
+            line(noseTopX2, noseTopY2, noseBottomX2, noseBottomY2);
+    }
 }
 
 let mouthPosY = 0;
