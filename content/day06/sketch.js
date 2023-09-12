@@ -32,6 +32,7 @@ function drawFaceOutline() {
     // Face Top Coordinate
     let x1 = windowWidth / 2;
     let y1 = faceMiddle - windowHeight / 3;  // change this to - for top point
+    y1 += middleRandom() * 300; // add some randomness to face top
 
     // Face Bottom Coordinate
     let x3 = x1;
@@ -45,24 +46,27 @@ function drawFaceOutline() {
     console.log("small face factor: " + preventSmallFaceFactor);
 
     //Calculate x-pull
-    let pullLeftTop = Math.random() * maxPullForce + preventSmallFaceFactor;
-    let pullLeftBottom = Math.random() * maxPullForce + preventSmallFaceFactor;
+    //Face topNode only receives x-pull so lines join together neatly, bottom node reiceives x and y pull for funny chins
+    let pullLeftTopX = Math.random() * maxPullForce + preventSmallFaceFactor;
+    let pullLeftBottomX = Math.random() * maxPullForce + preventSmallFaceFactor;
+    let pullLeftBottomY = middleRandom() * maxPullForce + preventSmallFaceFactor;
 
     // Left face side
     bezier(x1, y1, // start point
-        x1 - pullLeftTop, y1, // Pull vector start point
-        x3 - pullLeftBottom, y3, // Pull vector end point
+        x1 - pullLeftTopX, y1, // Pull vector start point
+        x3 - pullLeftBottomX, y3 + pullLeftBottomY, // Pull vector end point
         x3, y3 // End Point
     );
 
     //Calculate x-pull
-    let pullRightTop = Math.random() * maxPullForce + preventSmallFaceFactor;
-    let pullRightBottom = Math.random() * maxPullForce + preventSmallFaceFactor;
+    let pullRightTopX = Math.random() * maxPullForce + preventSmallFaceFactor;
+    let pullRightBottomX = Math.random() * maxPullForce + preventSmallFaceFactor;
+    let pullRightBottomY = middleRandom() * maxPullForce + preventSmallFaceFactor;
 
     // draw Right face side
     bezier(x1, y1, // start point
-        x1 + pullRightTop, y1, // control point for start point
-        x3 + pullRightBottom, y3, // end point
+        x1 + pullRightTopX, y1, // control point for start point
+        x3 + pullRightBottomX, y3 + pullRightBottomY, // end point
         x3, y3 // control point for end point
     );
 
@@ -71,8 +75,8 @@ function drawFaceOutline() {
     faceBorders.top = y1;
     faceBorders.bottom = y3;
     faceBorders.middleX = x1;
-    faceBorders.left = Math.sqrt(pullLeftTop + pullLeftBottom) * 3;
-    faceBorders.right = Math.sqrt(pullRightTop + pullRightBottom) * 3;
+    faceBorders.left = Math.sqrt(pullLeftTopX + pullLeftBottomX) * 3;
+    faceBorders.right = Math.sqrt(pullRightTopX + pullRightBottomX) * 3;
 
     console.log(faceBorders);
 }
@@ -82,8 +86,11 @@ function drawEyes() {
     eyePosY = (faceBorders.top + faceBorders.bottom) / 2; //Eyes always in middle of face, rule of law
 
     //Simple eye as circle: VARIANT 1
-    //Left eye
-    circle(faceBorders.middleX - Math.random() * faceBorders.left - 10, eyePosY, Math.random() * 10 + 10);
+    //Left eye large Circle
+    let leftEyeSize = Math.random() * 10 + 10;
+    circle(faceBorders.middleX - Math.random() * faceBorders.left - 10, eyePosY, leftEyeSize);
+    //Left eye pupil
+    //circle(faceBorders.middleX - Math.random() * faceBorders.left - 10, eyePosY, leftEyeSize * Math.random());
 
     //Right eye
     circle(faceBorders.middleX + Math.random() * faceBorders.right + 10, eyePosY, Math.random() * 10 + 10);
