@@ -32,11 +32,12 @@ function drawFaceOutline() {
     // Face Top Coordinate
     let x1 = windowWidth / 2;
     let y1 = faceMiddle - windowHeight / 3;  // change this to - for top point
-    y1 += middleRandom() * 300; // add some randomness to face top
+    y1 += middleRandom() * windowHeight / 4; // add some randomness to face top
 
     // Face Bottom Coordinate
     let x3 = x1;
     let y3 = faceMiddle + windowHeight / 3;  // change this to + for bottom point
+    y3 += middleRandom() * windowHeight / 4; // add some randomness to face top
 
     //Max pullforce for bezier curve
     let maxPullForce = 120;
@@ -121,8 +122,10 @@ function drawEyes() {
 }
 
 let nosePosY = 0;
+let maxNoseVariants = 3
 function drawNose() {
-    let noseVariantNo = Math.floor(Math.random() * 2) + 1;
+    let noseVariantNo = Math.floor(Math.random() * maxNoseVariants) + 1;
+    let noseAbsoluteMiddle = (leftEyeX + rightEyeX) / 2; //nose always inbetween eyes
 
     let faceHeight = faceBorders.bottom - faceBorders.top;
     nosePosY = faceBorders.bottom - faceHeight * 0.4;
@@ -131,7 +134,7 @@ function drawNose() {
         case 1:
             //Nose with 2 Lines: VARIANT 1
             let noseTopY = nosePosY + middleRandom() * 10;
-            let noseTopX = (leftEyeX + rightEyeX) / 2; //nose always inbetween eyes
+            let noseTopX = noseAbsoluteMiddle + middleRandom() * 10;
             console.log("noseTopX: " + noseTopX + " leftEyeX: " + leftEyeX + " rightEyeX: " + rightEyeX)
 
             let noseMiddleY = noseTopY + middleRandom() * 5;
@@ -150,6 +153,15 @@ function drawNose() {
             let noseBottomY2 = noseTopY2 + Math.random() * 8 + 2;
             let noseBottomX2 = noseTopX2 + middleRandom() * 2;
             line(noseTopX2, noseTopY2, noseBottomX2, noseBottomY2);
+            break;
+        case 3:
+            //Nose with 2 circles: VARIANT 3
+            let noseSize = getRandomNumberInRange(3, 7);
+            let leftNostrilX = noseAbsoluteMiddle - Math.random() * 6 - noseSize;
+            circle(leftNostrilX, nosePosY, noseSize);
+
+            let rightNostrilX = noseAbsoluteMiddle + Math.random() * 6 + noseSize;
+            circle(rightNostrilX, nosePosY, noseSize);
     }
 }
 
