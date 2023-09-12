@@ -72,6 +72,7 @@ function drawFaceOutline() {
 
 
     //Set border variables needed for later drawing positioning
+    //Top bottom are absolute global values, left and right are relative to middle
     faceBorders.top = y1;
     faceBorders.bottom = y3;
     faceBorders.middleX = x1;
@@ -82,18 +83,41 @@ function drawFaceOutline() {
 }
 
 let eyePosY = 0;
+let leftEyeX = 0;
+let rightEyeX = 0;
 function drawEyes() {
     eyePosY = (faceBorders.top + faceBorders.bottom) / 2; //Eyes always in middle of face, rule of law
+    let eyeColour = [Math.random() * 255, Math.random() * 255, Math.random() * 255];
+    let innerEyeDivisor = 4;
+    let innerEyeSizeFactor = 0.6;
 
     //Simple eye as circle: VARIANT 1
-    //Left eye large Circle
     let leftEyeSize = Math.random() * 10 + 10;
-    circle(faceBorders.middleX - Math.random() * faceBorders.left - 10, eyePosY, leftEyeSize);
-    //Left eye pupil
-    //circle(faceBorders.middleX - Math.random() * faceBorders.left - 10, eyePosY, leftEyeSize * Math.random());
+    leftEyeX = faceBorders.middleX - Math.random() * faceBorders.left - 10; //random position left of middle
+
+    //Left eye large Circle
+    circle(leftEyeX, eyePosY, leftEyeSize);
+
+    //Left eye pupil with random color (plus slight deviation between eyes)
+    fill(eyeColour[0] + middleRandom() * 5, eyeColour[1] + middleRandom() * 5, eyeColour[2] + middleRandom() * 5);
+    //random inner eye position for funny looks
+    circle(leftEyeX + Math.random() * leftEyeSize / innerEyeDivisor, eyePosY + Math.random() * leftEyeSize / innerEyeDivisor, leftEyeSize * innerEyeSizeFactor);
+    noFill();
+
+    //Variables right eye
+    let rightEyeSize = Math.random() * 3 + 15;
+    let rightEyeX = faceBorders.middleX + Math.random() * faceBorders.right + 10; //random position right of middle
 
     //Right eye
-    circle(faceBorders.middleX + Math.random() * faceBorders.right + 10, eyePosY, Math.random() * 10 + 10);
+    circle(rightEyeX, eyePosY, rightEyeSize);
+
+    //Left eye pupil with random color (plus slight deviation between eyes)
+    fill(eyeColour[0] + middleRandom() * 5, eyeColour[1] + middleRandom() * 5, eyeColour[2] + middleRandom() * 5);
+    //random inner eye position for funny looks
+    circle(rightEyeX + Math.random() * rightEyeSize / innerEyeDivisor, eyePosY + Math.random() * rightEyeSize / innerEyeDivisor, rightEyeSize * innerEyeSizeFactor);
+    noFill();
+
+    console.log("leftEyeSize: " + leftEyeSize + " rightEyeSize: " + rightEyeSize);
 }
 
 let nosePosY = 0;
