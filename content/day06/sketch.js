@@ -19,7 +19,8 @@ function setup() {
     drawEyes();
     drawNose();
     drawMouth();
-
+    drawHair();
+    
     //Draw visualization of my data variables
     /*
     line(faceBorders.middleX, eyePosY, faceBorders.middleX, faceBorders.top);
@@ -87,13 +88,16 @@ let eyePosY = 0;
 let leftEyeX = 0;
 let rightEyeX = 0;
 function drawEyes() {
-    eyePosY = (faceBorders.top + faceBorders.bottom) / 2; //Eyes always in middle of face, rule of law
+    eyePosY = (faceBorders.top + faceBorders.bottom) / 2; //Eyes always in middle of face Y, rule of law
+    eyePosY += middleRandom() * 30; //add some randomness to eye position
     let eyeColour = [Math.random() * 255, Math.random() * 255, Math.random() * 255];
     let innerEyeDivisor = 4;
     let innerEyeSizeFactor = 0.6;
 
-    //Simple eye as circle: VARIANT 1
     let leftEyeSize = Math.random() * 10 + 10;
+    let rightEyeSize = Math.random() * 3 + 15;
+
+    //Simple eye as circle: VARIANT 1
     leftEyeX = faceBorders.middleX - Math.random() * faceBorders.left - 10; //random position left of middle
 
     //Left eye large Circle
@@ -106,7 +110,6 @@ function drawEyes() {
     noFill();
 
     //Variables right eye
-    let rightEyeSize = Math.random() * 3 + 15;
     rightEyeX = faceBorders.middleX + Math.random() * faceBorders.right + 10; //random position right of middle
 
     //Right eye
@@ -167,15 +170,48 @@ function drawNose() {
 
 let mouthPosY = 0;
 let EmotiveStrength = 50;
+let maxMouthVariants = 2;
 function drawMouth() {
     let faceHeight = faceBorders.bottom - faceBorders.top;
+    let mouthVariant = Math.floor(Math.random() * maxMouthVariants) + 1;
     mouthPosY = faceBorders.bottom - faceHeight * 0.2;
+
     //Draw mouth here
     let mouthXLeft = (windowWidth / 2) - faceBorders.left;
     let mouthXRight = (windowWidth / 2) + faceBorders.right;
 
-    bezier(mouthXLeft, mouthPosY,
-        mouthXLeft + middleRandom() * EmotiveStrength, mouthPosY + middleRandom() * EmotiveStrength,
-        mouthXRight + middleRandom() * EmotiveStrength, mouthPosY + middleRandom() * EmotiveStrength,
-        mouthXRight, mouthPosY)
+    //Draws middle line of mouth
+    let mouthPullXLeft = middleRandom() * EmotiveStrength;
+    let mouthPullYLeft = middleRandom() * EmotiveStrength;
+    let mouthPullXRight = middleRandom() * EmotiveStrength;
+    let mouthPullYRight = middleRandom() * EmotiveStrength;
+
+    //Cheaty switchcase, using fallthrough on case 2 for both lines
+    switch (mouthVariant) {
+        case 2:
+            //draws top line of mouth
+            bezier(mouthXLeft, mouthPosY,
+                //Extra pull to top left
+                mouthXLeft + mouthPullXLeft - Math.random() * 10 - 10, mouthPosY + mouthPullYLeft - Math.random() * 10 - 10,
+                //Extra pull to top right
+                mouthXRight + mouthPullXRight + Math.random() * 10 + 10, mouthPosY + mouthPullYRight - Math.random() * 10 - 10,
+                mouthXRight, mouthPosY)
+        case 1:
+            bezier(mouthXLeft, mouthPosY,
+                mouthXLeft + mouthPullXLeft, mouthPosY + mouthPullYLeft,
+                mouthXRight + mouthPullXRight, mouthPosY + mouthPullYRight,
+                mouthXRight, mouthPosY)
+            break;
+    }
+
+    //Triple line version of mouth looks "fine" but it looks EXTREMELY colonial with the "big lips" stereotype, so Imma not do that
+    /*
+//draws bottom line of mouth
+bezier(mouthXLeft, mouthPosY,
+    //Extra pull to bottom right
+    mouthXLeft + mouthPullXLeft + Math.random() * 10 + 10, mouthPosY + mouthPullYLeft + Math.random() * 10 + 10,
+    //Extra pull to bottom left
+    mouthXRight + mouthPullXRight - Math.random() * 10 - 10, mouthPosY + mouthPullYRight + Math.random() * 10 + 10,
+    mouthXRight, mouthPosY)
+    */
 }
