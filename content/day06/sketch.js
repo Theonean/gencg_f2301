@@ -57,11 +57,6 @@ function setup() {
     }
 }
 
-function draw() {
-
-}
-
-
 //get face data from face outline with intersect commands
 function getFaceIntersectData() {
     let leftIntersection = getFaceIntersectionPoint(faceBorders.middleX, windowHeight / 2, faceLeftBounds, -1);
@@ -92,7 +87,7 @@ function drawFaceOutline() {
     y3 += middleRandom() * windowHeight / 4; // add some randomness to face top
 
     //Max pullforce for bezier curve
-    let maxPullForce = Math.random() * 500; //Randomizing this part makes round AND small faces likely
+    let maxPullForce = 500;
 
     //adds flat "roundness" to face, reduces with windowHeight
     let preventSmallFaceFactor = (windowHeight / 1080) * 30;
@@ -103,13 +98,44 @@ function drawFaceOutline() {
     let pullLeftTopX = Math.random() * maxPullForce + preventSmallFaceFactor;
     let pullLeftBottomX = Math.random() * maxPullForce + preventSmallFaceFactor;
     let pullLeftBottomY = middleRandom() * maxPullForce + preventSmallFaceFactor;
-    
+
     //Calculate pull right
     let pullRightTopX = Math.random() * maxPullForce + preventSmallFaceFactor;
     let pullRightBottomX = Math.random() * maxPullForce + preventSmallFaceFactor;
     let pullRightBottomY = middleRandom() * maxPullForce + preventSmallFaceFactor;
 
+    let faceHeight = y3 - y1;
 
+    //Decide between 3 facetypes:
+    // 1. Round face
+    // 2. horizontally long face
+    // 3. vertically long face
+
+    //Randomize face type
+    let faceType = Math.floor(Math.random() * 3) + 1;
+    switch (faceType) {
+        case 1:
+            //Round face means closer top and bottom points
+            y1 += Math.random() * faceHeight / 2 * 0.9;
+            y3 -= Math.random() * faceHeight / 2 * 0.9;
+            maxPullForce = 1000;
+
+            console.log("Round Face");
+            break;
+        case 2:
+            //Horizontally long face means further top and bottom points
+            maxPullForce = 500;
+            if (faceHeight < windowHeight / 3) {
+                y1 -= Math.random() * windowHeight / 4;
+                y3 += Math.random() * windowHeight / 4;
+            }
+
+            console.log("Long Face");
+            break;
+        case 3:
+            console.log("regular face")
+            break;
+    }
 
     // Left face side
     bezier(x1, y1, // start point
