@@ -80,15 +80,33 @@ function drawFaceOutline() {
     let x1 = windowWidth / 2;
     let y1 = faceMiddle - windowHeight / 3;  // change this to - for top point
     y1 += middleRandom() * windowHeight / 4; // add some randomness to face top
+    if (y1 < frameInnerDistance + frameDistance) {
+        y1 = frameInnerDistance + frameDistance;
+    }
 
     // Face Bottom Coordinate
-    let x3 = x1;
+    let x3 = x1 + middleRandom() * 30;
     let y3 = faceMiddle + windowHeight / 3;  // change this to + for bottom point
     y3 += middleRandom() * windowHeight / 4; // add some randomness to face top
+    if (y3 > windowHeight - frameInnerDistance - frameDistance) {
+        y3 = windowHeight - frameInnerDistance - frameDistance * 3;
+    }
+
+    let maxPullForce = 0;
 
     //Max pullforce for bezier curve
-    let maxPullForce = 500;
-
+    let faceType = Math.floor(Math.random() * 3) + 1;
+    switch (faceType) {
+        case 1:
+            maxPullForce = Math.random() * 50 + 50;
+            break;
+        case 2:
+            maxPullForce = Math.random() * 200 + 50;
+            break;
+        case 3:
+            maxPullForce = Math.random() * 600 + 50;
+            break;
+    }
     //adds flat "roundness" to face, reduces with windowHeight
     let preventSmallFaceFactor = (windowHeight / 1080) * 30;
     console.log("small face factor: " + preventSmallFaceFactor);
@@ -301,13 +319,16 @@ function drawMouth() {
 }
 
 //draws a frame around the face
+let frameDistance = 0;
+let frameInnerDistance = 0;
 function drawFrame() {
+    frameDistance = windowHeight / 32;
+    frameInnerDistance = windowHeight / 8;
     let faceLeftMinimum = getVectorArrayExtrema(faceLeftBounds, true, true);
     let faceRightMaximum = getVectorArrayExtrema(faceRightBounds, false, true);
     let faceTopMinimum = getVectorArrayExtrema(faceLeftBounds, true, false);
 
     //Draw frame with a small distance around face
-    let frameDistance = 30;
     let frameTop = faceTopMinimum - frameDistance;
     let frameBottom = faceBorders.bottom + frameDistance * 3;
     let frameLeft = faceLeftMinimum - frameDistance;
@@ -321,11 +342,10 @@ function drawFrame() {
     line(frameLeft, frameBottom, frameLeft, frameTop);
 
     //draw larger frame around first frame
-    let frameDistance2 = 100;
-    let frameTop2 = frameTop - frameDistance2;
-    let frameBottom2 = frameBottom + frameDistance2;
-    let frameLeft2 = frameLeft - frameDistance2;
-    let frameRight2 = frameRight + frameDistance2;
+    let frameTop2 = frameTop - frameInnerDistance;
+    let frameBottom2 = frameBottom + frameInnerDistance;
+    let frameLeft2 = frameLeft - frameInnerDistance;
+    let frameRight2 = frameRight + frameInnerDistance;
 
     line(frameLeft2, frameTop2, frameRight2, frameTop2);
     line(frameRight2, frameTop2, frameRight2, frameBottom2);
