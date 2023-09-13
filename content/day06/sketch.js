@@ -1,3 +1,17 @@
+/*
+TODO:
+Change face drawing to 2 stages, pre stage and drawing stage
+Pre stage: draw face outline and get intersecting Information for later
+Drawing stage: Clear canvas and do the whole shebang with info from pre stage
+Find proper face border with math library DONE
+
+add face variations:
+
+
+
+*/
+
+
 let canvas;
 
 let faceBorders = {
@@ -9,28 +23,69 @@ let faceBorders = {
 };
 
 let faceMiddle = 0;
+let faceLeftBounds = [];
+let faceRightBounds = [];
+
+let TheosDebug = false;
 
 function setup() {
     canvas = createCanvas(windowWidth, windowHeight);
 
+    collideDebug(true, 5, color(120, 120, 0));
+
     faceMiddle = windowHeight / 2;
 
+    //Draw outline so data can be gathered from face
     drawFaceOutline();
+    getFaceIntersectData();
+
     drawEyes();
     drawNose();
     drawMouth();
-    drawHair();
-
-
 
     //Draw visualization of my data variables
-    fill(255, 0, 0);
-    /*
-    line(faceBorders.middleX, eyePosY, faceBorders.middleX, faceBorders.top);
-    line(faceBorders.middleX, eyePosY, faceBorders.middleX - faceBorders.left, eyePosY);
-    line(faceBorders.middleX, eyePosY, faceBorders.middleX + faceBorders.right, eyePosY);
-    line(faceBorders.middleX, eyePosY, faceBorders.middleX, faceBorders.bottom);*/
-    noFill();
+    if (TheosDebug) {
+        stroke(255, 0, 0);
+        line(faceBorders.middleX, eyePosY, faceBorders.middleX, faceBorders.top);
+        line(faceBorders.middleX, eyePosY, faceBorders.middleX - faceBorders.left, eyePosY);
+        line(faceBorders.middleX, eyePosY, faceBorders.middleX + faceBorders.right, eyePosY);
+        line(faceBorders.middleX, eyePosY, faceBorders.middleX, faceBorders.bottom);
+        noFill();
+    }
+}
+
+function draw() {
+
+}
+
+
+//get face data from face outline with intersect commands
+function getFaceIntersectData() {
+    
+    let leftIntersection = getFaceIntersectionPoint(faceBorders.middleX, windowHeight / 2, faceLeftBounds, -1);
+
+    //RELATIVE TO MIDDLE
+    faceBorders.left = faceBorders.middleX - leftIntersection.x;
+
+    //Draw debug circle
+    if (TheosDebug) {
+        fill(255, 0, 0);
+        circle(faceBorders.middleX - faceBorders.left, windowHeight / 2, 10);
+        noFill();
+    }
+
+    //RIGHTSIDE
+    let RightIntersection = getFaceIntersectionPoint(faceBorders.middleX, windowHeight / 2, faceRightBounds, 1);
+
+    //RELATIVE TO MIDDLE
+    faceBorders.right = RightIntersection.x - faceBorders.middleX;
+
+    //Draw debug circle
+    if (TheosDebug) {
+        fill(255, 0, 0);
+        circle(faceBorders.middleX + faceBorders.right, windowHeight / 2, 10);
+        noFill();
+    }
 }
 
 function drawFaceOutline() {
@@ -64,6 +119,18 @@ function drawFaceOutline() {
         x3, y3 // End Point
     );
 
+    //get bezier points of left face side for later use
+    fill(255);
+    let step = 10;
+    for (let index = 0; index <= step; index++) {
+        let t = index / step;
+        let x = bezierPoint(x1, x1 - pullLeftTopX, x3 - pullLeftBottomX, x3, t);
+        let y = bezierPoint(y1, y1, y3 + pullLeftBottomY, y3, t);
+
+        faceLeftBounds.push(createVector(x, y));
+    }
+    noFill();
+
     //Calculate x-pull
     let pullRightTopX = Math.random() * maxPullForce + preventSmallFaceFactor;
     let pullRightBottomX = Math.random() * maxPullForce + preventSmallFaceFactor;
@@ -76,16 +143,24 @@ function drawFaceOutline() {
         x3, y3 // control point for end point
     );
 
+    //get bezier points of left face side for later use
+    fill(255);
+    for (let index = 0; index <= step; index++) {
+        let t = index / step;
+        let x = bezierPoint(x1, x1 + pullRightTopX, x3 + pullRightBottomX, x3, t);
+        let y = bezierPoint(y1, y1, y3 + pullRightBottomY, y3, t);
+
+        faceRightBounds.push(createVector(x, y));
+    }
+    noFill();
 
     //Set border variables needed for later drawing positioning
-    //Top bottom are absolute global values, left and right are relative to middle
     faceBorders.top = y1;
     faceBorders.bottom = y3;
     faceBorders.middleX = x1;
-    faceBorders.left = Math.sqrt(pullLeftTopX + pullLeftBottomX) * 3;
-    faceBorders.right = Math.sqrt(pullRightTopX + pullRightBottomX) * 3;
 
     console.log(faceBorders);
+    console.log("faceLeftBounds: " + faceLeftBounds + " faceRightBounds: " + faceRightBounds);
 }
 
 let eyePosY = 0;
@@ -137,18 +212,20 @@ function drawNose() {
     let faceHeight = faceBorders.bottom - faceBorders.top;
     nosePosY = faceBorders.bottom - faceHeight * 0.4;
 
+    strokeWeight(Math.random() * 4 + 1);
+
     switch (noseVariantNo) {
         case 1:
             //Nose with 2 Lines: VARIANT 1
-            let noseTopY = nosePosY + middleRandom() * 10;
-            let noseTopX = noseAbsoluteMiddle + middleRandom() * 10;
+            let noseTopY = nosePosY + middleRandom() * 30;
+            let noseTopX = noseAbsoluteMiddle + middleRandom() * 30;
             console.log("noseTopX: " + noseTopX + " leftEyeX: " + leftEyeX + " rightEyeX: " + rightEyeX)
 
-            let noseMiddleY = noseTopY + middleRandom() * 5;
-            let noseMiddleX = noseTopX - middleRandom() * 10;
+            let noseMiddleY = noseTopY + middleRandom() * 15;
+            let noseMiddleX = noseTopX - middleRandom() * 30;
 
-            let noseBottomY = noseMiddleY + Math.random() * 8 + 2;
-            let noseBottomX = noseTopX + middleRandom() * 2;
+            let noseBottomY = noseMiddleY + Math.random() * 24 + 2;
+            let noseBottomX = noseTopX + middleRandom() * 6;
 
             line(noseTopX, noseTopY, noseMiddleX, noseMiddleY);
             line(noseMiddleX, noseMiddleY, noseBottomX, noseBottomY);
@@ -170,19 +247,26 @@ function drawNose() {
             let rightNostrilX = noseAbsoluteMiddle + Math.random() * 6 + noseSize;
             circle(rightNostrilX, nosePosY, noseSize);
     }
+    strokeWeight(1);
 }
 
 let mouthPosY = 0;
 let EmotiveStrength = 50;
-let maxMouthVariants = 2;
+let maxMouthVariants = 3;
 function drawMouth() {
     let faceHeight = faceBorders.bottom - faceBorders.top;
     let mouthVariant = Math.floor(Math.random() * maxMouthVariants) + 1;
     mouthPosY = faceBorders.bottom - faceHeight * 0.2;
 
     //Draw mouth here
-    let mouthXLeft = (windowWidth / 2) - faceBorders.left;
-    let mouthXRight = (windowWidth / 2) + faceBorders.right;
+    let mouthXLeft = getFaceIntersectionPoint(faceBorders.middleX, mouthPosY, faceLeftBounds, -1).x;
+    let mouthXRight = getFaceIntersectionPoint(faceBorders.middleX, mouthPosY, faceRightBounds, 1).x;
+
+    let mouthWidth = mouthXRight - mouthXLeft;
+    
+    //Randomize mouth width by half its width
+    mouthXLeft += Math.random() * mouthWidth / 2;
+    mouthXRight -= Math.random() * mouthWidth / 2;
 
     //Draws middle line of mouth
     let mouthPullXLeft = middleRandom() * EmotiveStrength;
@@ -192,6 +276,10 @@ function drawMouth() {
 
     //Cheaty switchcase, using fallthrough on case 2 for both lines
     switch (mouthVariant) {
+        //I found out setting left and right to 0 makes funny mouths, so im keeping it
+        case 3:
+            faceBorders.left = 0;
+            faceBorders.right = 0;
         case 2:
             //Extraline sometimes up sometimes down
             if (Math.random() >= 0.5) {
@@ -222,6 +310,17 @@ function drawMouth() {
 
 }
 
-function drawHair() {
+function getFaceIntersectionPoint(startX, startY, borderData, xDirection) {
+    let step = 1;
+    let hit = true;
+    let hitX = 0;
+    let hitY = 0;
+    do {
+        step += 1;
+        hit = collidePointPoly(startX + xDirection * step, startY, borderData);
+        hitX = startX + xDirection * step;
+        hitY = startY;
+    } while (hit != false);
 
+    return createVector(hitX, hitY);
 }
