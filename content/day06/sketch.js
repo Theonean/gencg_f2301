@@ -104,39 +104,6 @@ function drawFaceOutline() {
     let pullRightBottomX = Math.random() * maxPullForce + preventSmallFaceFactor;
     let pullRightBottomY = middleRandom() * maxPullForce + preventSmallFaceFactor;
 
-    let faceHeight = y3 - y1;
-
-    //Decide between 3 facetypes:
-    // 1. Round face
-    // 2. horizontally long face
-    // 3. vertically long face
-
-    //Randomize face type
-    let faceType = Math.floor(Math.random() * 3) + 1;
-    switch (faceType) {
-        case 1:
-            //Round face means closer top and bottom points
-            y1 += Math.random() * faceHeight / 2 * 0.9;
-            y3 -= Math.random() * faceHeight / 2 * 0.9;
-            maxPullForce = 1000;
-
-            console.log("Round Face");
-            break;
-        case 2:
-            //Horizontally long face means further top and bottom points
-            maxPullForce = 500;
-            if (faceHeight < windowHeight / 3) {
-                y1 -= Math.random() * windowHeight / 4;
-                y3 += Math.random() * windowHeight / 4;
-            }
-
-            console.log("Long Face");
-            break;
-        case 3:
-            console.log("regular face")
-            break;
-    }
-
     // Left face side
     bezier(x1, y1, // start point
         x1 - pullLeftTopX, y1, // Pull vector start point
@@ -340,9 +307,9 @@ function drawFrame() {
     let faceTopMinimum = getVectorArrayExtrema(faceLeftBounds, true, false);
 
     //Draw frame with a small distance around face
-    let frameDistance = 50;
+    let frameDistance = 30;
     let frameTop = faceTopMinimum - frameDistance;
-    let frameBottom = faceBorders.bottom + frameDistance;
+    let frameBottom = faceBorders.bottom + frameDistance * 3;
     let frameLeft = faceLeftMinimum - frameDistance;
     let frameRight = faceRightMaximum + frameDistance;
 
