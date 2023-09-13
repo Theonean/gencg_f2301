@@ -6,7 +6,9 @@ Drawing stage: Clear canvas and do the whole shebang with info from pre stage
 Find proper face border with math library DONE
 
 add face variations:
+move eye position before placement (move both eyes together, move one eye, move both eyes in opposite direction, move one eye in opposite direction)
 
+TODO save variables in objects for persistence in animation
 
 
 */
@@ -42,6 +44,7 @@ function setup() {
     drawEyes();
     drawNose();
     drawMouth();
+    drawFrame();
 
     //Draw visualization of my data variables
     if (TheosDebug) {
@@ -61,29 +64,18 @@ function draw() {
 
 //get face data from face outline with intersect commands
 function getFaceIntersectData() {
-    
     let leftIntersection = getFaceIntersectionPoint(faceBorders.middleX, windowHeight / 2, faceLeftBounds, -1);
-
-    //RELATIVE TO MIDDLE
-    faceBorders.left = faceBorders.middleX - leftIntersection.x;
-
-    //Draw debug circle
-    if (TheosDebug) {
-        fill(255, 0, 0);
-        circle(faceBorders.middleX - faceBorders.left, windowHeight / 2, 10);
-        noFill();
-    }
-
-    //RIGHTSIDE
     let RightIntersection = getFaceIntersectionPoint(faceBorders.middleX, windowHeight / 2, faceRightBounds, 1);
 
     //RELATIVE TO MIDDLE
+    faceBorders.left = faceBorders.middleX - leftIntersection.x;
     faceBorders.right = RightIntersection.x - faceBorders.middleX;
 
     //Draw debug circle
     if (TheosDebug) {
         fill(255, 0, 0);
         circle(faceBorders.middleX + faceBorders.right, windowHeight / 2, 10);
+        circle(faceBorders.middleX - faceBorders.left, windowHeight / 2, 10);
         noFill();
     }
 }
@@ -106,11 +98,18 @@ function drawFaceOutline() {
     let preventSmallFaceFactor = (windowHeight / 1080) * 30;
     console.log("small face factor: " + preventSmallFaceFactor);
 
-    //Calculate x-pull
+    //Calculate pull left
     //Face topNode only receives x-pull so lines join together neatly, bottom node reiceives x and y pull for funny chins
     let pullLeftTopX = Math.random() * maxPullForce + preventSmallFaceFactor;
     let pullLeftBottomX = Math.random() * maxPullForce + preventSmallFaceFactor;
     let pullLeftBottomY = middleRandom() * maxPullForce + preventSmallFaceFactor;
+    
+    //Calculate pull right
+    let pullRightTopX = Math.random() * maxPullForce + preventSmallFaceFactor;
+    let pullRightBottomX = Math.random() * maxPullForce + preventSmallFaceFactor;
+    let pullRightBottomY = middleRandom() * maxPullForce + preventSmallFaceFactor;
+
+
 
     // Left face side
     bezier(x1, y1, // start point
@@ -130,11 +129,6 @@ function drawFaceOutline() {
         faceLeftBounds.push(createVector(x, y));
     }
     noFill();
-
-    //Calculate x-pull
-    let pullRightTopX = Math.random() * maxPullForce + preventSmallFaceFactor;
-    let pullRightBottomX = Math.random() * maxPullForce + preventSmallFaceFactor;
-    let pullRightBottomY = middleRandom() * maxPullForce + preventSmallFaceFactor;
 
     // draw Right face side
     bezier(x1, y1, // start point
@@ -263,7 +257,7 @@ function drawMouth() {
     let mouthXRight = getFaceIntersectionPoint(faceBorders.middleX, mouthPosY, faceRightBounds, 1).x;
 
     let mouthWidth = mouthXRight - mouthXLeft;
-    
+
     //Randomize mouth width by half its width
     mouthXLeft += Math.random() * mouthWidth / 2;
     mouthXRight -= Math.random() * mouthWidth / 2;
@@ -274,6 +268,8 @@ function drawMouth() {
     let mouthPullXRight = middleRandom() * EmotiveStrength;
     let mouthPullYRight = middleRandom() * EmotiveStrength;
 
+    let tempLeft = faceBorders.left;
+    let tempRight = faceBorders.right;
     //Cheaty switchcase, using fallthrough on case 2 for both lines
     switch (mouthVariant) {
         //I found out setting left and right to 0 makes funny mouths, so im keeping it
@@ -307,7 +303,79 @@ function drawMouth() {
                 mouthXRight, mouthPosY)
             break;
     }
+    faceBorders.left = tempLeft;
+    faceBorders.right = tempRight;
+}
 
+//draws a frame around the face
+function drawFrame() {
+    let faceLeftMinimum = getVectorArrayExtrema(faceLeftBounds, true, true);
+    let faceRightMaximum = getVectorArrayExtrema(faceRightBounds, false, true);
+    let faceTopMinimum = getVectorArrayExtrema(faceLeftBounds, true, false);
+
+    //Draw frame with a small distance around face
+    let frameDistance = 50;
+    let frameTop = faceTopMinimum - frameDistance;
+    let frameBottom = faceBorders.bottom + frameDistance;
+    let frameLeft = faceLeftMinimum - frameDistance;
+    let frameRight = faceRightMaximum + frameDistance;
+
+    //Draw frame
+    strokeWeight(4);
+    line(frameLeft, frameTop, frameRight, frameTop);
+    line(frameRight, frameTop, frameRight, frameBottom);
+    line(frameRight, frameBottom, frameLeft, frameBottom);
+    line(frameLeft, frameBottom, frameLeft, frameTop);
+
+    //draw larger frame around first frame
+    let frameDistance2 = 100;
+    let frameTop2 = frameTop - frameDistance2;
+    let frameBottom2 = frameBottom + frameDistance2;
+    let frameLeft2 = frameLeft - frameDistance2;
+    let frameRight2 = frameRight + frameDistance2;
+
+    line(frameLeft2, frameTop2, frameRight2, frameTop2);
+    line(frameRight2, frameTop2, frameRight2, frameBottom2);
+    line(frameRight2, frameBottom2, frameLeft2, frameBottom2);
+    line(frameLeft2, frameBottom2, frameLeft2, frameTop2);
+    strokeWeight(1);
+
+    //Draw lines from outer to inner corners of frame
+    line(frameLeft, frameTop, frameLeft2, frameTop2);
+    line(frameRight, frameTop, frameRight2, frameTop2);
+    line(frameRight, frameBottom, frameRight2, frameBottom2);
+    line(frameLeft, frameBottom, frameLeft2, frameBottom2);
+
+}
+
+//returns largest y (or x when specified) component, can also get smallest
+function getVectorArrayExtrema(vectorArray, getSmallest = false, getX = true) {
+    let largestComponent = vectorArray[0].x;
+    for (let index = 0; index < vectorArray.length; index++) {
+        const element = vectorArray[index];
+        if (getSmallest) {
+            if (getX) {
+                if (element.x < largestComponent) {
+                    largestComponent = element.x;
+                }
+            } else {
+                if (element.y < largestComponent) {
+                    largestComponent = element.y;
+                }
+            }
+        } else {
+            if (getX) {
+                if (element.x > largestComponent) {
+                    largestComponent = element.x;
+                }
+            } else {
+                if (element.y > largestComponent) {
+                    largestComponent = element.y;
+                }
+            }
+        }
+    }
+    return largestComponent;
 }
 
 function getFaceIntersectionPoint(startX, startY, borderData, xDirection) {
