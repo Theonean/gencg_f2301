@@ -16,17 +16,39 @@ TODO save variables in objects for persistence in animation
 
 let canvas;
 
-let faceBorders = {
-    left: 0,
-    top: 0,
-    right: 0,
-    bottom: 0,
-    middleX: 0
+
+//Add new datastructure which contains all global variables needed to draw a face
+let faceEmptyData = {
+    //FACE BOUNDARIES
+    left: 0, //relative x to middle, positive number, left from the middle (y)
+    top: 0, //global y
+    right: 0, //relative x to middle, positive number
+    bottom: 0, //global y
+    middleX: 0, //middle of face, global x
+    middleY: 0, //middle of face, global y
+    faceLeftBounds: [], //vector points array of face left side bezier curve
+    faceRightBounds: [], //vector points array of face left side bezier curve
+    //EYES
+    eyePosY: 0,
+    leftEyeX: 0,
+    rightEyeX: 0,
+    //NOSE
+    nosePosY: 0,
+    maxNoseVariants: 3,
+    //MOUTH
+    mouthPosY: 0,
+    EmotiveStrength: 50,
+    maxMouthVariants: 3,
+    //FRAME
+    frameDistance: 0,
+    frameInnerDistance: 0,
+    //FRAME CORNER POSITIONS
+    frameOuterTopLeft: [0, 0],
+    frameOuterBottomRight: [0, 0],
 };
 
-let faceMiddle = 0;
-let faceLeftBounds = [];
-let faceRightBounds = [];
+//Faces are added to array at start of drawFace function
+let faces = [];
 
 let TheosDebug = false;
 
@@ -35,61 +57,92 @@ function setup() {
 
     collideDebug(true, 5, color(120, 120, 0));
 
-    faceMiddle = windowHeight / 2;
+    middleY = windowHeight / 2;
 
-    //Draw outline so data can be gathered from face
-    drawFaceOutline();
-    getFaceIntersectData();
+    drawFacesInGrid();
+}
 
-    drawEyes();
-    drawNose();
-    drawMouth();
-    drawFrame();
+//Duplicates emptyFaceData Object and adds it to faces array, then returns it
+function createEmptyFaceData() {
+    let newFaceData = Object.assign({}, faceEmptyData);
+    faces.push(newFaceData);
+    return newFaceData;
+}
 
-    //Draw visualization of my data variables
-    if (TheosDebug) {
-        stroke(255, 0, 0);
-        line(faceBorders.middleX, eyePosY, faceBorders.middleX, faceBorders.top);
-        line(faceBorders.middleX, eyePosY, faceBorders.middleX - faceBorders.left, eyePosY);
-        line(faceBorders.middleX, eyePosY, faceBorders.middleX + faceBorders.right, eyePosY);
-        line(faceBorders.middleX, eyePosY, faceBorders.middleX, faceBorders.bottom);
-        noFill();
+function drawFacesInGrid() {
+    let gridWidth = 10;
+    let gridHeight = 6;
+    let gridSpacing = 150;
+
+    for (let x = 0; x < gridWidth; x++) {
+        for (let y = 0; y < gridHeight; y++) {
+            drawFace(x * gridSpacing, y * gridSpacing, Math.random() * 0.5 + 0.15, Math.random() * 0.5 + 0.15);
+        }
     }
 }
 
+//Redraws canvas on "r" keypress
+function keyPressed() {
+    if (keyCode === 82) {
+        clear();
+        faces.length = 0;
+        drawFacesInGrid();
+    }
+}
+
+//Top level function to call a face to be drawn
+//Automatically adds data to array
+function drawFace(xPos, yPos, heightScale = 1, widthScale = 1) {
+    //On next rework face data will be passed to functions so they can be drawn and managed seperately
+    let faceData = createEmptyFaceData();
+    faceData.middleY = yPos;
+    faceData.middleX = xPos;
+
+    //Draw outline so data can be gathered from face
+    drawFaceOutline(faceData, xPos, yPos, heightScale, widthScale);
+    getFaceIntersectData(faceData);
+
+    drawEyes(faceData);
+    drawNose(faceData);
+    drawMouth(faceData);
+    //drawFrame(faceData);
+
+    console.log(faceData);
+}
+
 //get face data from face outline with intersect commands
-function getFaceIntersectData() {
-    let leftIntersection = getFaceIntersectionPoint(faceBorders.middleX, windowHeight / 2, faceLeftBounds, -1);
-    let RightIntersection = getFaceIntersectionPoint(faceBorders.middleX, windowHeight / 2, faceRightBounds, 1);
+function getFaceIntersectData(faceData) {
+    let leftIntersection = getFaceIntersectionPoint(faceData.middleX, windowHeight / 2, faceData.faceLeftBounds, -1);
+    let RightIntersection = getFaceIntersectionPoint(faceData.middleX, windowHeight / 2, faceData.faceRightBounds, 1);
 
     //RELATIVE TO MIDDLE
-    faceBorders.left = faceBorders.middleX - leftIntersection.x;
-    faceBorders.right = RightIntersection.x - faceBorders.middleX;
+    faceData.left = faceData.middleX - leftIntersection.x;
+    faceData.right = RightIntersection.x - faceData.middleX;
 
     //Draw debug circle
     if (TheosDebug) {
         fill(255, 0, 0);
-        circle(faceBorders.middleX + faceBorders.right, windowHeight / 2, 10);
-        circle(faceBorders.middleX - faceBorders.left, windowHeight / 2, 10);
+        circle(faceData.middleX + faceData.right, faceData.middleY, 10);
+        circle(faceData.middleX - faceData.left, windowHeight / 2, 10);
         noFill();
     }
 }
 
-function drawFaceOutline() {
+function drawFaceOutline(faceData, xPos, yPos, heightScale = 1, widthScale = 1) {
     // Face Top Coordinate
-    let x1 = windowWidth / 2;
-    let y1 = faceMiddle - windowHeight / 3;  // change this to - for top point
-    y1 += middleRandom() * windowHeight / 4; // add some randomness to face top
-    if (y1 < frameInnerDistance + frameDistance) {
-        y1 = frameInnerDistance + frameDistance;
+    let x1 = xPos;
+    let y1 = yPos - (windowHeight / 5) * heightScale;  // change this to - for top point
+    y1 += middleRandom() * windowHeight / 5; // add some randomness to face top
+    if (y1 < faceData.frameInnerDistance + faceData.frameDistance) {
+        y1 = faceData.frameInnerDistance + faceData.frameDistance;
     }
 
     // Face Bottom Coordinate
-    let x3 = x1 + middleRandom() * 30;
-    let y3 = faceMiddle + windowHeight / 3;  // change this to + for bottom point
-    y3 += middleRandom() * windowHeight / 4; // add some randomness to face top
-    if (y3 > windowHeight - frameInnerDistance - frameDistance) {
-        y3 = windowHeight - frameInnerDistance - frameDistance * 3;
+    let x3 = x1;
+    let y3 = yPos + (windowHeight / 5) * heightScale;  // change this to + for bottom point
+    y3 += middleRandom() * windowHeight / 5; // add some randomness to face top
+    if (y3 > windowHeight - faceData.frameInnerDistance - faceData.frameDistance) {
+        y3 = windowHeight - faceData.frameInnerDistance - faceData.frameDistance * 3;
     }
 
     let maxPullForce = 0;
@@ -98,18 +151,25 @@ function drawFaceOutline() {
     let faceType = Math.floor(Math.random() * 3) + 1;
     switch (faceType) {
         case 1:
+            //force between 50 and 100
             maxPullForce = Math.random() * 50 + 50;
             break;
         case 2:
-            maxPullForce = Math.random() * 200 + 50;
+            //force between 200 and 400
+            maxPullForce = Math.random() * 200 + 200;
             break;
         case 3:
-            maxPullForce = Math.random() * 600 + 50;
+            //force between 400 and 500
+            maxPullForce = Math.random() * 100 + 400;
             break;
     }
+    maxPullForce *= widthScale;
+
     //adds flat "roundness" to face, reduces with windowHeight
     let preventSmallFaceFactor = (windowHeight / 1080) * 30;
-    console.log("small face factor: " + preventSmallFaceFactor);
+    if (TheosDebug) {
+        console.log("small face factor: " + preventSmallFaceFactor);
+    }
 
     //Calculate pull left
     //Face topNode only receives x-pull so lines join together neatly, bottom node reiceives x and y pull for funny chins
@@ -137,7 +197,7 @@ function drawFaceOutline() {
         let x = bezierPoint(x1, x1 - pullLeftTopX, x3 - pullLeftBottomX, x3, t);
         let y = bezierPoint(y1, y1, y3 + pullLeftBottomY, y3, t);
 
-        faceLeftBounds.push(createVector(x, y));
+        faceData.faceLeftBounds.push(createVector(x, y));
     }
     noFill();
 
@@ -155,25 +215,23 @@ function drawFaceOutline() {
         let x = bezierPoint(x1, x1 + pullRightTopX, x3 + pullRightBottomX, x3, t);
         let y = bezierPoint(y1, y1, y3 + pullRightBottomY, y3, t);
 
-        faceRightBounds.push(createVector(x, y));
+        faceData.faceRightBounds.push(createVector(x, y));
     }
     noFill();
 
     //Set border variables needed for later drawing positioning
-    faceBorders.top = y1;
-    faceBorders.bottom = y3;
-    faceBorders.middleX = x1;
+    faceData.top = y1;
+    faceData.bottom = y3;
+    faceData.middleX = x1;
 
-    console.log(faceBorders);
-    console.log("faceLeftBounds: " + faceLeftBounds + " faceRightBounds: " + faceRightBounds);
+    if (TheosDebug) {
+        console.log(faceData);
+    }
 }
 
-let eyePosY = 0;
-let leftEyeX = 0;
-let rightEyeX = 0;
-function drawEyes() {
-    eyePosY = (faceBorders.top + faceBorders.bottom) / 2; //Eyes always in middle of face Y, rule of law
-    eyePosY += middleRandom() * 30; //add some randomness to eye position
+function drawEyes(faceData) {
+    faceData.eyePosY = (faceData.top + faceData.bottom) / 2; //Eyes always in middle of face Y, rule of law
+    faceData.eyePosY += middleRandom() * 30; //add some randomness to eye position
     let eyeColour = [Math.random() * 255, Math.random() * 255, Math.random() * 255];
     let innerEyeDivisor = 4;
     let innerEyeSizeFactor = 0.6;
@@ -182,49 +240,46 @@ function drawEyes() {
     let rightEyeSize = Math.random() * 3 + 15;
 
     //Simple eye as circle: VARIANT 1
-    leftEyeX = faceBorders.middleX - Math.random() * faceBorders.left - 10; //random position left of middle
+    faceData.leftEyeX = faceData.middleX - Math.random() * faceData.left - 10; //random position left of middle
 
     //Left eye large Circle
-    circle(leftEyeX, eyePosY, leftEyeSize);
+    circle(faceData.leftEyeX, faceData.eyePosY, leftEyeSize);
 
     //Left eye pupil with random color (plus slight deviation between eyes)
     fill(eyeColour[0] + middleRandom() * 5, eyeColour[1] + middleRandom() * 5, eyeColour[2] + middleRandom() * 5);
     //random inner eye position for funny looks
-    circle(leftEyeX + Math.random() * leftEyeSize / innerEyeDivisor, eyePosY + Math.random() * leftEyeSize / innerEyeDivisor, leftEyeSize * innerEyeSizeFactor);
+    circle(faceData.leftEyeX + Math.random() * leftEyeSize / innerEyeDivisor, faceData.eyePosY + Math.random() * leftEyeSize / innerEyeDivisor, leftEyeSize * innerEyeSizeFactor);
     noFill();
 
     //Variables right eye
-    rightEyeX = faceBorders.middleX + Math.random() * faceBorders.right + 10; //random position right of middle
+    faceData.rightEyeX = faceData.middleX + Math.random() * faceData.right + 10; //random position right of middle
 
     //Right eye
-    circle(rightEyeX, eyePosY, rightEyeSize);
+    circle(faceData.rightEyeX, faceData.eyePosY, rightEyeSize);
 
     //Left eye pupil with random color (plus slight deviation between eyes)
     fill(eyeColour[0] + middleRandom() * 5, eyeColour[1] + middleRandom() * 5, eyeColour[2] + middleRandom() * 5);
     //random inner eye position for funny looks
-    circle(rightEyeX + Math.random() * rightEyeSize / innerEyeDivisor, eyePosY + Math.random() * rightEyeSize / innerEyeDivisor, rightEyeSize * innerEyeSizeFactor);
+    circle(faceData.rightEyeX + Math.random() * rightEyeSize / innerEyeDivisor, faceData.eyePosY + Math.random() * rightEyeSize / innerEyeDivisor, rightEyeSize * innerEyeSizeFactor);
     noFill();
 
     console.log("leftEyeSize: " + leftEyeSize + " rightEyeSize: " + rightEyeSize);
 }
 
-let nosePosY = 0;
-let maxNoseVariants = 3
-function drawNose() {
-    let noseVariantNo = Math.floor(Math.random() * maxNoseVariants) + 1;
-    let noseAbsoluteMiddle = (leftEyeX + rightEyeX) / 2; //nose always inbetween eyes
+function drawNose(faceData) {
+    let noseVariantNo = Math.floor(Math.random() * faceData.maxNoseVariants) + 1;
+    let noseAbsoluteMiddle = (faceData.leftEyeX + faceData.rightEyeX) / 2; //nose always inbetween eyes
 
-    let faceHeight = faceBorders.bottom - faceBorders.top;
-    nosePosY = faceBorders.bottom - faceHeight * 0.4;
+    let faceHeight = faceData.bottom - faceData.top;
+    faceData.nosePosY = faceData.bottom - faceHeight * 0.4;
 
     strokeWeight(Math.random() * 4 + 1);
 
     switch (noseVariantNo) {
         case 1:
             //Nose with 2 Lines: VARIANT 1
-            let noseTopY = nosePosY + middleRandom() * 30;
+            let noseTopY = faceData.nosePosY + middleRandom() * 30;
             let noseTopX = noseAbsoluteMiddle + middleRandom() * 30;
-            console.log("noseTopX: " + noseTopX + " leftEyeX: " + leftEyeX + " rightEyeX: " + rightEyeX)
 
             let noseMiddleY = noseTopY + middleRandom() * 15;
             let noseMiddleX = noseTopX - middleRandom() * 30;
@@ -237,8 +292,8 @@ function drawNose() {
             break;
         case 2:
             //Nose with 1 Line: VARIANT 2
-            let noseTopY2 = nosePosY + middleRandom() * 10;
-            let noseTopX2 = faceBorders.middleX
+            let noseTopY2 = faceData.nosePosY + middleRandom() * 10;
+            let noseTopX2 = faceData.middleX
             let noseBottomY2 = noseTopY2 + Math.random() * 8 + 2;
             let noseBottomX2 = noseTopX2 + middleRandom() * 2;
             line(noseTopX2, noseTopY2, noseBottomX2, noseBottomY2);
@@ -247,25 +302,22 @@ function drawNose() {
             //Nose with 2 circles: VARIANT 3
             let noseSize = getRandomNumberInRange(3, 7);
             let leftNostrilX = noseAbsoluteMiddle - Math.random() * 6 - noseSize;
-            circle(leftNostrilX, nosePosY, noseSize);
+            circle(leftNostrilX, faceData.nosePosY, noseSize);
 
             let rightNostrilX = noseAbsoluteMiddle + Math.random() * 6 + noseSize;
-            circle(rightNostrilX, nosePosY, noseSize);
+            circle(rightNostrilX, faceData.nosePosY, noseSize);
     }
     strokeWeight(1);
 }
 
-let mouthPosY = 0;
-let EmotiveStrength = 50;
-let maxMouthVariants = 3;
-function drawMouth() {
-    let faceHeight = faceBorders.bottom - faceBorders.top;
-    let mouthVariant = Math.floor(Math.random() * maxMouthVariants) + 1;
-    mouthPosY = faceBorders.bottom - faceHeight * 0.2;
+function drawMouth(faceData) {
+    let faceHeight = faceData.bottom - faceData.top;
+    let mouthVariant = Math.floor(Math.random() * faceData.maxMouthVariants) + 1;
+    faceData.mouthPosY = faceData.bottom - faceHeight * 0.2;
 
     //Draw mouth here
-    let mouthXLeft = getFaceIntersectionPoint(faceBorders.middleX, mouthPosY, faceLeftBounds, -1).x;
-    let mouthXRight = getFaceIntersectionPoint(faceBorders.middleX, mouthPosY, faceRightBounds, 1).x;
+    let mouthXLeft = getFaceIntersectionPoint(faceData.middleX, faceData.mouthPosY, faceData.faceLeftBounds, -1).x;
+    let mouthXRight = getFaceIntersectionPoint(faceData.middleX, faceData.mouthPosY, faceData.faceRightBounds, 1).x;
 
     let mouthWidth = mouthXRight - mouthXLeft;
 
@@ -274,65 +326,64 @@ function drawMouth() {
     mouthXRight -= Math.random() * mouthWidth / 2;
 
     //Draws middle line of mouth
-    let mouthPullXLeft = middleRandom() * EmotiveStrength;
-    let mouthPullYLeft = middleRandom() * EmotiveStrength;
-    let mouthPullXRight = middleRandom() * EmotiveStrength;
-    let mouthPullYRight = middleRandom() * EmotiveStrength;
+    let mouthPullXLeft = middleRandom() * faceData.EmotiveStrength;
+    let mouthPullYLeft = middleRandom() * faceData.EmotiveStrength;
+    let mouthPullXRight = middleRandom() * faceData.EmotiveStrength;
+    let mouthPullYRight = middleRandom() * faceData.EmotiveStrength;
 
-    let tempLeft = faceBorders.left;
-    let tempRight = faceBorders.right;
+    let tempLeft = faceData.left;
+    let tempRight = faceData.right;
     //Cheaty switchcase, using fallthrough on case 2 for both lines
     switch (mouthVariant) {
         //I found out setting left and right to 0 makes funny mouths, so im keeping it
         case 3:
-            faceBorders.left = 0;
-            faceBorders.right = 0;
+            faceData.left = 0;
+            faceData.right = 0;
         case 2:
             //Extraline sometimes up sometimes down
             if (Math.random() >= 0.5) {
                 //draws top line of mouth
-                bezier(mouthXLeft, mouthPosY,
+                bezier(mouthXLeft, faceData.mouthPosY,
                     //Extra pull to top left
-                    mouthXLeft + mouthPullXLeft - Math.random() * 10 - 10, mouthPosY + mouthPullYLeft - Math.random() * 10 - 10,
+                    mouthXLeft + mouthPullXLeft - Math.random() * 10 - 10, faceData.mouthPosY + mouthPullYLeft - Math.random() * 10 - 10,
                     //Extra pull to top right
-                    mouthXRight + mouthPullXRight + Math.random() * 10 + 10, mouthPosY + mouthPullYRight - Math.random() * 10 - 10,
-                    mouthXRight, mouthPosY)
+                    mouthXRight + mouthPullXRight + Math.random() * 10 + 10, faceData.mouthPosY + mouthPullYRight - Math.random() * 10 - 10,
+                    mouthXRight, faceData.mouthPosY)
             } else {
 
                 //draws bottom line of mouth
-                bezier(mouthXLeft, mouthPosY,
+                bezier(mouthXLeft, faceData.mouthPosY,
                     //Extra pull to bottom right
-                    mouthXLeft + mouthPullXLeft + Math.random() * 10 + 10, mouthPosY + mouthPullYLeft + Math.random() * 10 + 10,
+                    mouthXLeft + mouthPullXLeft + Math.random() * 10 + 10, faceData.mouthPosY + mouthPullYLeft + Math.random() * 10 + 10,
                     //Extra pull to bottom left
-                    mouthXRight + mouthPullXRight - Math.random() * 10 - 10, mouthPosY + mouthPullYRight + Math.random() * 10 + 10,
-                    mouthXRight, mouthPosY)
+                    mouthXRight + mouthPullXRight - Math.random() * 10 - 10, faceData.mouthPosY + mouthPullYRight + Math.random() * 10 + 10,
+                    mouthXRight, faceData.mouthPosY)
             }
         case 1:
-            bezier(mouthXLeft, mouthPosY,
-                mouthXLeft + mouthPullXLeft, mouthPosY + mouthPullYLeft,
-                mouthXRight + mouthPullXRight, mouthPosY + mouthPullYRight,
-                mouthXRight, mouthPosY)
+            bezier(mouthXLeft, faceData.mouthPosY,
+                mouthXLeft + mouthPullXLeft, faceData.mouthPosY + mouthPullYLeft,
+                mouthXRight + mouthPullXRight, faceData.mouthPosY + mouthPullYRight,
+                mouthXRight, faceData.mouthPosY)
             break;
     }
-    faceBorders.left = tempLeft;
-    faceBorders.right = tempRight;
+    faceData.left = tempLeft;
+    faceData.right = tempRight;
 }
 
 //draws a frame around the face
-let frameDistance = 0;
-let frameInnerDistance = 0;
-function drawFrame() {
-    frameDistance = windowHeight / 32;
-    frameInnerDistance = windowHeight / 8;
-    let faceLeftMinimum = getVectorArrayExtrema(faceLeftBounds, true, true);
-    let faceRightMaximum = getVectorArrayExtrema(faceRightBounds, false, true);
-    let faceTopMinimum = getVectorArrayExtrema(faceLeftBounds, true, false);
+function drawFrame(faceData) {
+    faceData.frameDistance = windowHeight / 32;
+    faceData.frameInnerDistance = windowHeight / 8;
+
+    let faceLeftMinimum = getVectorArrayExtrema(faceData.faceLeftBounds, true, true);
+    let faceRightMaximum = getVectorArrayExtrema(faceData.faceRightBounds, false, true);
+    let faceTopMinimum = getVectorArrayExtrema(faceData.faceLeftBounds, true, false);
 
     //Draw frame with a small distance around face
-    let frameTop = faceTopMinimum - frameDistance;
-    let frameBottom = faceBorders.bottom + frameDistance * 3;
-    let frameLeft = faceLeftMinimum - frameDistance;
-    let frameRight = faceRightMaximum + frameDistance;
+    let frameTop = faceTopMinimum - faceData.frameDistance;
+    let frameBottom = faceData.bottom + faceData.frameDistance * 3;
+    let frameLeft = faceLeftMinimum - faceData.frameDistance;
+    let frameRight = faceRightMaximum + faceData.frameDistance;
 
     //Draw frame
     strokeWeight(4);
@@ -342,10 +393,10 @@ function drawFrame() {
     line(frameLeft, frameBottom, frameLeft, frameTop);
 
     //draw larger frame around first frame
-    let frameTop2 = frameTop - frameInnerDistance;
-    let frameBottom2 = frameBottom + frameInnerDistance;
-    let frameLeft2 = frameLeft - frameInnerDistance;
-    let frameRight2 = frameRight + frameInnerDistance;
+    let frameTop2 = frameTop - faceData.frameInnerDistance;
+    let frameBottom2 = frameBottom + faceData.frameInnerDistance;
+    let frameLeft2 = frameLeft - faceData.frameInnerDistance;
+    let frameRight2 = frameRight + faceData.frameInnerDistance;
 
     line(frameLeft2, frameTop2, frameRight2, frameTop2);
     line(frameRight2, frameTop2, frameRight2, frameBottom2);
