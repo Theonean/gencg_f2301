@@ -14,7 +14,5 @@ In my Code I was trying to move a point to the left in a while loop to find the 
 The face positioning was also reworked, however it broke positioning down the line as it created too large or small numbers, so I had to scrap it early on.
 As I had some time left I decided to try and add a frame around the face, which would highlight it and make it look more "done". The Frame sadly also has the issue of breaking the view bounds, but I still kept it as this is a fixable problem originating at the frame and not the face positioning.
 
-
-
 ## Sources
 P5js Collide2D Library by Bmorgen - https://github.com/bmoren/p5.collide2D
